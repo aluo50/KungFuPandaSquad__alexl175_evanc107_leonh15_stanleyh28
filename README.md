@@ -1,11 +1,19 @@
-# KungFuPandaSquad
+# Steak Co. by KungFuPandaSquad
 ## Roster
-* Alex Luo
-* Evan Chan
-* Leon Huang 
-* Stanley Hoo
+* Alex Luo - PM, flask routing, front end framework, db creation, will help with games 
+* Evan Chan - API handling and styling
+* Leon Huang - Implementing games and will help with db creation 
+* Stanley Hoo - HTML Templates and styling
 
 ## App Description
+Our website will be an online gaming site where users can:
+ * Acquire and use a universal virtual currency 
+ * Play games including 
+    * Plinko: Users drop a chip, and it lands in a slot that either awards or decrements currency 
+    * Poker: Texas Hold’em and Chinese Poker (Rules will be incorporated on the site)
+    * Blackjack: Users try to get closer to 21, but not exceed it
+
+We aim to create an engaging experience that utilizes Flask, a simple user account system, Bootstrap for our front end framework, and RESTful APIS. 
 
 # Install Guide
 
