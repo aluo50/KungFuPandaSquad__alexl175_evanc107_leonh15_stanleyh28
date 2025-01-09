@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      
+    </style>
+  </head>
+  <body onload = "startGame()">
+    <script>
+      //financials
+      var creditcardinfo;
+      var balance;
+      
+      //balls
+      var maxBalls; // amount of balls at max
+      var ballSize;
+      var balls; // array of balls
+
+      //boardsetup
+      var rows; // 8 - 16
+      var risk; // low/med/high
+      var pegSize;
+      var grid; 
+
+      //physics
+      var gravity; // downward force
+      var bouncyness; // how bouncy pegs are
+
+      function startGame() {
+        // balance = {{bal}};
+        balance = 100000;
+        
+        maxBalls = 50;
+        ballSize = 35;
+        balls = [maxBalls];
+        
+        rows = 8;
+        risk = "low";
+        pegSize = 15;
+        createGrid();
+        
+        gravity = 0.05;
+        bouncyness = 1;
+      }//startGame
+
+      function createGrid(){
+        grid = [];
+        grid.length = rows;
+        for(let i = 0; i < grid.length; i++){
+          
+        }
+      }//createGrid
+
+      class Peg {
+        bounce = bouncyness;
+        pos = [0,0];
+        
+        constructor(x,y,sz){
+          this.pos[0] = x;
+          this.pos[1] = y;
+          this.size = sz;
+        }//constructor
+      }//Peg class
+
+      class Ball {
+        accel = [0,0]//[x,y]
+        pos = [0,0];
+        
+        constructor(x,y,sz){
+          this.pos[0] = x;
+          this.pos[1] = y;
+          this.size = sz;
+        }//constructor
+
+        function apply(force){
+          accel[0]+=force[0];
+          accel[1]+=force[1];
+        }//apply
+        
+        function run(){
+          this.pos[0]+=this.accel[0];
+          this.pos[1]+=this.accel[1];
+        }//run
+      }//Ball class
+    </script>
+  </body>
+</html>
