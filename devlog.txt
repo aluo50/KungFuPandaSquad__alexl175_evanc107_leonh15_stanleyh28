@@ -1,1 +1,4 @@
-
+alexL -- 2025-1-8 10:56
+ - added bots to design docs
+ - made users data table more efficeient
+ - removed APIS 
