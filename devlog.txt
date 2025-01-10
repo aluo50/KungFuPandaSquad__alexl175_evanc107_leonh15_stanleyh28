@@ -1,4 +1,11 @@
-alexL -- 2025-1-8 10:56
+alexL -- 2025-1-8 22:56
  - added bots to design docs
- - made users data table more efficeient
+ - made users data table more efficient
  - removed APIS 
+
+evanC -- 2025-1-8 23:11
+- changes to plinko.html:
+    - substantial JavaScript progress
+    - made grid with varying number of rows based on user input
+    - made gradient for the money multipliers at the bottom
+    - made the canvas and its contents resizable with browser sizes
