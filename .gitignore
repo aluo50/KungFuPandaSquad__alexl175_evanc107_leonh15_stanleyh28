@@ -1,7 +1,7 @@
 *.ipynb
 app/ipynb_checkpoints
 
-app/apis.db
+app/steakco.db
 app/__pycache__
 
 project_venv
