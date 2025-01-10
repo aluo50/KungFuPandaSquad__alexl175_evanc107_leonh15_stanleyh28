@@ -16,6 +16,10 @@ app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(32)
 
 database.create_db()
 
+@app.route("/")
+def index():
+    return redirect(url_for("home"))
+
 @app.route("/home")
 def home():
     if 'username' in session:
