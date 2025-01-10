@@ -1,8 +1,20 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>plinko</title>
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
-      
+      canvas {
+        border:1px solid #ffffff;
+        background-color: #ffffff;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+      }
     </style>
   </head>
   <body onload = "startGame()">
@@ -10,7 +22,7 @@
       //financials
       var creditcardinfo;
       var balance;
-      
+
       //balls
       var maxBalls; // amount of balls at max
       var ballSize;
@@ -20,68 +32,221 @@
       var rows; // 8 - 16
       var risk; // low/med/high
       var pegSize;
-      var grid; 
+      var grid;
 
       //physics
       var gravity; // downward force
       var bouncyness; // how bouncy pegs are
 
-      function startGame() {
+      //actualgame
+      var cWidth = 1440;
+      var cHeight = 640;
+
+      function startGame(){
         // balance = {{bal}};
         balance = 100000;
-        
+
         maxBalls = 50;
         ballSize = 35;
         balls = [maxBalls];
-        
-        rows = 8;
+
+        rows = 16;
         risk = "low";
-        pegSize = 15;
         createGrid();
-        
+        // console.log(grid);
         gravity = 0.05;
         bouncyness = 1;
+
+
+
+        board.start();
       }//startGame
 
+      var board = {
+        canvas : document.createElement("canvas"),
+        start : function() {
+          this.canvas.width = cWidth;
+          this.canvas.height = cHeight;
+          this.context = this.canvas.getContext("2d");
+          document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+          this.frameNo = 0;
+          this.interval = setInterval(updateGameArea, 20);
+          },
+        clear : function() {
+          this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+      }//board
+
+      function updateGameArea(){
+        board.clear();
+        board.frameNo+=1;
+        board.context.fillStyle = "#0f1728";
+        board.context.beginPath();
+        board.context.roundRect(0,0,cWidth,cHeight,1/40*cHeight);
+        board.context.fill();
+        board.context.globalAlpha = 0;
+        board.context.stroke();
+        board.context.globalAlpha = 1;
+        createGrid();
+        for(let i = 0; i < grid.length; i++){
+          for(let n = 0; n < grid[i].length; n++){
+            grid[i][n].display()
+          }
+        }
+        displayMults();
+      }//updateGameArea
+
+      function displayMults(){
+        let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
+        let upandbot = [(1/10)*cHeight,(7/8)*cHeight];//bottom and top bounds
+        let xPadding = (side2side[1]-side2side[0])/(rows);
+        let padding = pegSize*(3/4);
+        const ctx = board.context;
+
+        let rWidth = xPadding-(2*padding);
+        let rHeight = (1/16)*cHeight;
+
+        let red = [255,0,63];
+        let yellow = [255,192,0];
+        let redShadow = [120,23,46];
+        let yellowShadow = [120,96,22];
+
+        let halfPt = (rows+1)/2;
+
+        for(let i = 0;i < grid[rows-1].length-1; i++){
+          ctx.fillStyle = yellowShadow;
+          if(i<halfPt){
+            ctx.fillStyle = lerpColor(redShadow, yellowShadow,i/halfPt);
+          }
+          else if(i>halfPt){
+            ctx.fillStyle = lerpColor(yellowShadow, redShadow,(i-halfPt+.5)/halfPt);
+          }
+          ctx.beginPath();
+          ctx.roundRect(side2side[0]+padding+((rWidth+(2*padding))*i),(29.2/32)*cHeight,rWidth,rHeight,.25/32*cHeight);
+          ctx.fill();
+          ctx.globalAlpha = 0;
+          ctx.strokeStyle = "#0f1728";
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+
+          ctx.fillStyle = yellow;
+          if(i<halfPt){
+            ctx.fillStyle = lerpColor(red, yellow,i/halfPt);
+          }
+          else if(i>halfPt){
+            ctx.fillStyle = lerpColor(yellow, red,(i-halfPt+.5)/halfPt);
+          }
+          ctx.beginPath();
+          ctx.roundRect(side2side[0]+padding+((rWidth+(2*padding))*i),(29/32)*cHeight,rWidth,rHeight,.25/32*cHeight);
+          ctx.fill();
+          ctx.globalAlpha = 0;
+          ctx.strokeStyle = "#0f1728";
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      }//displayMults
+
       function createGrid(){
+        let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
+        let ctr = (side2side[0]+side2side[1])/2;//center
+        let upandbot = [(1/10)*cHeight,(7/8)*cHeight];//bottom and top bounds
+
         grid = [];
         grid.length = rows;
-        for(let i = 0; i < grid.length; i++){
-          
+        let yPadding = (upandbot[1]-upandbot[0])/(rows-1);
+        let xPadding = (side2side[1]-side2side[0])/(rows);
+        // console.log(this.padding)
+
+        pegSize = yPadding/10;
+        for(let i = 0; i < grid.length; i++){//per row basis
+          let rw = [];
+          rw.length = i+3;//0th row has 3 pegs, 1st has 4
+          let xOffset = side2side[0]+(xPadding/2*(rows+2-rw.length));
+          for(let n = 0; n < rw.length; n++){//pegs each row
+              rw[n] = new Peg(xOffset+(xPadding*n),yPadding*(i)+((1/10)*cHeight),pegSize)
+          }
+          grid[i] = rw;
         }
       }//createGrid
 
       class Peg {
-        bounce = bouncyness;
-        pos = [0,0];
-        
+        pos = [];
+
         constructor(x,y,sz){
           this.pos[0] = x;
           this.pos[1] = y;
           this.size = sz;
+          this.bounce = bouncyness;
         }//constructor
+
+        display() {
+          const ctx = board.context;
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath();
+          ctx.arc(this.pos[0], this.pos[1], this.size, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.strokeStyle = "#ffffff";
+          ctx.stroke();
+        }//display
       }//Peg class
 
       class Ball {
-        accel = [0,0]//[x,y]
         pos = [0,0];
-        
+
         constructor(x,y,sz){
           this.pos[0] = x;
           this.pos[1] = y;
           this.size = sz;
+          this.speed = [0,0]//[x,y]
+          this.accel = [0,0]//[x,y] again
         }//constructor
 
-        function apply(force){
+        apply(force){
           accel[0]+=force[0];
           accel[1]+=force[1];
         }//apply
-        
-        function run(){
+
+        run(){
           this.pos[0]+=this.accel[0];
           this.pos[1]+=this.accel[1];
         }//run
       }//Ball class
+
+      function lerp(start, end, amt) {
+        return start * (1 - amt) + end * amt;
+      }//lerp
+
+      function lerpColor(color1, color2, amt) {
+        let r = lerp(color1[0], color2[0], amt);
+        let g = lerp(color1[1], color2[1], amt);
+        let b = lerp(color1[2], color2[2], amt);
+
+        return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+      }//lerpColor this is a lot of work...
+
     </script>
+
+    <div class="btn-group">
+      <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Rows</button>
+      <ul class="dropdown-menu">
+        <li><button class="dropdown-item" data-value="8">8 Rows</button></li>
+        <li><button class="dropdown-item" data-value="12">12 Rows</button></li>
+        <li><button class="dropdown-item" data-value="16">16 Rows</button></li>
+      </ul>
+    </div>
+
+    <script>
+      document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const selectedRows = parseInt(this.getAttribute('data-value'), 10);
+          rows = selectedRows;
+          createGrid();
+        });
+      });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+
   </body>
 </html>
