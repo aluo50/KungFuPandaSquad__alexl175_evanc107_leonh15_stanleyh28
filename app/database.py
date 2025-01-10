@@ -41,7 +41,7 @@ def add_user():
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (user, pw_hash,))
+        cur.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, pw_hash,))
         conn.commit()
         conn.close()
 
