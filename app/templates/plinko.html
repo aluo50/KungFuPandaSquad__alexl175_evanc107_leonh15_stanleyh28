@@ -1,6 +1,6 @@
 <!--
 Alex Luo, Evan Chan, Leon Huang, Stanley Hoo
-KungFuPandaSquad 
+KungFuPandaSquad
 SoftDev
 P02: Makers Makin' It, Act I
 2025-1-9
@@ -54,17 +54,15 @@ Time spent: x
         // balance = {{bal}};
         balance = 100000;
 
-        balls = [maxBalls];
-
         rows = 16;
         risk = "low";
         createGrid();
         // console.log(grid);
-        gravity = 0.05;
+        gravity = [0,0.05];
         bouncyness = 1;
 
 
-
+        balls = [];
         board.start();
       }//startGame
 
@@ -93,12 +91,21 @@ Time spent: x
         board.context.globalAlpha = 0;
         board.context.stroke();
         board.context.globalAlpha = 1;
+
         createGrid();
+
         for(let i = 0; i < grid.length; i++){
           for(let n = 0; n < grid[i].length; n++){
-            grid[i][n].display()
+            grid[i][n].display();
           }
         }
+
+        for(let i = 0; i < balls.length; i++){
+          balls[i].apply(gravity);
+          balls[i].run();
+          balls[i].display();
+        }
+
         displayMults();
       }//updateGameArea
 
@@ -209,14 +216,26 @@ Time spent: x
         }//constructor
 
         apply(force){
-          accel[0]+=force[0];
-          accel[1]+=force[1];
+          this.accel[0]+=force[0];
+          this.accel[1]+=force[1];
         }//apply
 
         run(){
-          this.pos[0]+=this.accel[0];
-          this.pos[1]+=this.accel[1];
+          this.speed[0]+=this.accel[0];
+          this.speed[1]+=this.accel[1];
+          this.pos[0]+=this.speed[0];
+          this.pos[1]+=this.speed[1];
         }//run
+
+        display(){
+          const ctx = board.context;
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath();
+          ctx.arc(this.pos[0], this.pos[1], this.size, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.strokeStyle = "#ffffff";
+          ctx.stroke();
+        }//display
       }//Ball class
 
       function lerp(start, end, amt) {
@@ -232,9 +251,18 @@ Time spent: x
       }//lerpColor this is a lot of work...
 
       function spawnBall(){
-      	let entryPts = [grid[0][0].pos[0],grid[0][grid.length-1].pos[0]];
-        let newBall = new Ball(math.Random(entryPts[0],entryPts[1],pegSize*2));
+      	let entryPts = [grid[0][0].pos[0]+(ballSize*1.5),grid[0][2].pos[0]-(ballSize*1.5)];
+        let newBall = new Ball(getRandomInt(entryPts[0],entryPts[1]),0,pegSize*2);
+
+        balls.push(newBall);
       }//spawnBall
+
+      function getRandomInt(min, max) {
+        const minCeiled = Math.ceil(min);
+        const maxFloored = Math.floor(max);
+        return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
+      }//getRandomInt
+
     </script>
 
     <div class="btn-group">
