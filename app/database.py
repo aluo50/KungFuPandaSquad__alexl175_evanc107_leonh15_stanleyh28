@@ -1,5 +1,5 @@
 # Alex Luo, Evan Chan, Leon Huang, Stanley Hoo
-# KungFuPandaSquad 
+# KungFuPandaSquad
 # SoftDev
 # P02: Makers Makin' It, Act I
 # 2025-1-9
@@ -14,7 +14,7 @@ DB_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'steakco.db')
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  
+    conn.row_factory = sqlite3.Row
     return conn
 
 def create_db():
@@ -26,6 +26,22 @@ def create_db():
             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL
+        );
+    ''')
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS transactions (
+            transaction_id INTEGER,
+            user_id INTEGER,
+            game TEXT,
+            change INTEGER
+        );
+    ''')
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS state (
+            state_id INTEGER,
+            user_id INTEGER,
+            game TEXT,
+            state_data TEXT
         );
     ''')
     conn.commit()
@@ -45,7 +61,7 @@ def add_user():
         conn.commit()
         conn.close()
 
-        session['username'] = username 
+        session['username'] = username
         flash('Registration successful!', 'success')
 
     except sqlite3.IntegrityError:
