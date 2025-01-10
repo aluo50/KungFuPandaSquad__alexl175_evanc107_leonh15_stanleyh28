@@ -9,3 +9,8 @@ evanC -- 2025-1-8 23:11
     - made grid with varying number of rows based on user input
     - made gradient for the money multipliers at the bottom
     - made the canvas and its contents resizable with browser sizes
+
+alexL -- 2025-1-10 11:00
+- added home, logout, login html
+- added db functions for user login/logout
+- added flask routing for home, login, and logout
