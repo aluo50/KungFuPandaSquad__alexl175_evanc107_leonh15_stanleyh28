@@ -16,7 +16,7 @@ app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(32)
 
 database.create_db()
 
-@app.route("/")
+@app.route("/home")
 def home():
     if 'username' in session:
         return render_template("home.html", username=session['username'])
