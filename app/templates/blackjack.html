@@ -1,0 +1,32 @@
+<!--
+Alex Luo, Evan Chan, Leon Huang, Stanley Hoo
+KungFuPandaSquad
+SoftDev
+P02: Makers Makin' It, Act I
+2025-1-9
+Time spent: x
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Steak Co. Blackjack</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+
+    <header>
+        <h1>Steak Co.</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        {% endwith %}
+    </header>
+
+
+</html>
