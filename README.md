@@ -25,6 +25,7 @@ Ensure that **Git** and **Python** are installed on your machine. It is recommen
 
    3. (Optional) Setting up Git with SSH (Ms. Novillo's APCSA Guide): https://novillo-cs.github.io/apcsa/tools/ 
          
+*NO API KEYS NEEDED.*
 
 **Cloning the Project**
 1. Create Python virtual environment:
@@ -101,5 +102,3 @@ $ cd PATH/TO/KungFuPandaSquad__alexl175_evanc107_leonh15_stanleyh28/
 ```    
 * Running on http://127.0.0.1:5000
 ``` 
-
-# NO API KEYS NEEDED
