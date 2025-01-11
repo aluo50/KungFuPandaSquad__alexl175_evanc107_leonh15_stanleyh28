@@ -37,7 +37,6 @@ evanC - 2025-1-11 16:52
    - many necesary helper functions added to make main functions possible
    - slight changes to ball physics and peg power
    - canvas scales dynamically for browser sizes on load and if the screen is resized
-
    ->known issues: 
       - when screen is resized during the game, ball positions are not changed and will fall at their non-resized positions
       - text is not resized super well
