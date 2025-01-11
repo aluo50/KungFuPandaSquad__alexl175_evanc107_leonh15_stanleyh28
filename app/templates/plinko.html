@@ -112,6 +112,7 @@ Time spent: x
         }
 
         displayMults();
+        displaySettings();
       }//updateGameArea
 
       function displayMults(){
@@ -162,6 +163,38 @@ Time spent: x
           ctx.globalAlpha = 1;
         }
       }//displayMults
+
+      function displaySettings(){
+        let side2side = [0,(5/16)*cWidth]
+        const ctx = board.context;
+
+
+        ctx.fillStyle ="#334155";
+        ctx.beginPath();
+        ctx.roundRect(0,0,side2side[1],cHeight,1/40*cHeight);
+        ctx.rect(side2side[1]/2,0,side2side[1]/2,cHeight);
+        ctx.fill();
+        ctx.globalAlpha = 0;
+        ctx.strokeStyle = "#0f1728";
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        ctx.fillStyle = "#22c55e";
+        ctx.beginPath();
+        ctx.roundRect((1/20)*cWidth,(7/12)*cHeight,side2side[1]-((2/20)*cWidth),cHeight/12,1/40*cHeight);
+        ctx.fill();
+        ctx.globalAlpha = 0;
+        ctx.strokeStyle = "#0f1728";
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#0f1728";
+        ctx.font = "30px Arial";
+        ctx.fillText("Hello World", (1/20)*cWidth+(.5*(side2side[1]-((2/20)*cWidth))), ((7/12)*cHeight)+0.5*(cHeight/12));
+
+      }//displaySettings
 
       function createGrid(){
         let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
@@ -220,7 +253,7 @@ Time spent: x
 
               // let bForce = [-hyp*Math.cos(angle)*bouncyness,hyp*Math.sin(angle)*bouncyness];
               let direction = [(balls[i].pos[0] - this.pos[0])/hyp, (balls[i].pos[1] - this.pos[1])/hyp];
-              let bForce = [direction[0]*bouncyness, direction[1]*bouncyness];
+              let bForce = [direction[0]*bouncyness, direction[1]*bouncyness*.5];
 
 
               balls[i].speed = [0,0]
