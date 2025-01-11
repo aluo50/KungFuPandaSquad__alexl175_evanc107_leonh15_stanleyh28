@@ -54,15 +54,17 @@ Time spent: x
         // balance = {{bal}};
         balance = 100000;
 
+        balls = [];
+
         rows = 16;
         risk = "low";
         createGrid();
         // console.log(grid);
-        gravity = [0,0.05];
-        bouncyness = 1;
+        gravity = [0,0.1];
+        bouncyness = 1.15;
 
 
-        balls = [];
+        
         board.start();
       }//startGame
 
@@ -94,16 +96,19 @@ Time spent: x
 
         createGrid();
 
-        for(let i = 0; i < grid.length; i++){
-          for(let n = 0; n < grid[i].length; n++){
-            grid[i][n].display();
+        for (let i = balls.length - 1; i >= 0; i--) {
+          if(balls[i]!=null){
+            balls[i].apply(gravity);
+            balls[i].display();
+            balls[i].run();
           }
         }
 
-        for(let i = 0; i < balls.length; i++){
-          balls[i].apply(gravity);
-          balls[i].run();
-          balls[i].display();
+        for(let i = 0; i < grid.length; i++){
+          for(let n = 0; n < grid[i].length; n++){
+            grid[i][n].display();
+            grid[i][n].bounceEm();
+          }
         }
 
         displayMults();
@@ -111,13 +116,12 @@ Time spent: x
 
       function displayMults(){
         let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
-        let upandbot = [(1/10)*cHeight,(7/8)*cHeight];//bottom and top bounds
         let xPadding = (side2side[1]-side2side[0])/(rows);
         let padding = pegSize*(3/4);
         const ctx = board.context;
 
         let rWidth = xPadding-(2*padding);
-        let rHeight = (1/16)*cHeight;
+        let rHeight = (.9/16)*cHeight;
 
         let red = [255,0,63];
         let yellow = [255,192,0];
@@ -135,7 +139,7 @@ Time spent: x
             ctx.fillStyle = lerpColor(yellowShadow, redShadow,(i-halfPt+.5)/halfPt);
           }
           ctx.beginPath();
-          ctx.roundRect(side2side[0]+padding+((rWidth+(2*padding))*i),(29.2/32)*cHeight,rWidth,rHeight,.25/32*cHeight);
+          ctx.roundRect(side2side[0]+padding+((rWidth+(2*padding))*i),(29.4/32)*cHeight,rWidth,rHeight,.25/32*cHeight);
           ctx.fill();
           ctx.globalAlpha = 0;
           ctx.strokeStyle = "#0f1728";
@@ -150,7 +154,7 @@ Time spent: x
             ctx.fillStyle = lerpColor(yellow, red,(i-halfPt+.5)/halfPt);
           }
           ctx.beginPath();
-          ctx.roundRect(side2side[0]+padding+((rWidth+(2*padding))*i),(29/32)*cHeight,rWidth,rHeight,.25/32*cHeight);
+          ctx.roundRect(side2side[0]+padding+((rWidth+(2*padding))*i),(29.2/32)*cHeight,rWidth,rHeight,.25/32*cHeight);
           ctx.fill();
           ctx.globalAlpha = 0;
           ctx.strokeStyle = "#0f1728";
@@ -202,17 +206,44 @@ Time spent: x
           ctx.strokeStyle = "#ffffff";
           ctx.stroke();
         }//display
+
+        bounceEm() {
+          for(let i = 0; i < balls.length; i++){
+            if(Math.abs(dist(this.pos[0],this.pos[1],balls[i].pos[0],balls[i].pos[1])-(pegSize+ballSize)) <= 1){
+              let xDiff = Math.abs(this.pos[0]-balls[i].pos[0]);//a
+              let yDiff = Math.abs(this.pos[1]-balls[i].pos[1]);//b
+              let hyp = dist(this.pos[0],this.pos[1],balls[i].pos[0],balls[i].pos[1]);//hypotenuse
+
+              let angle = radians2degrees(Math.atan2(yDiff, xDiff));//angle in degrees
+
+              
+
+              // let bForce = [-hyp*Math.cos(angle)*bouncyness,hyp*Math.sin(angle)*bouncyness];
+              let direction = [(balls[i].pos[0] - this.pos[0])/hyp, (balls[i].pos[1] - this.pos[1])/hyp];
+              let bForce = [direction[0]*bouncyness, direction[1]*bouncyness];
+
+
+              balls[i].speed = [0,0]
+              balls[i].accel = [0,0];
+              balls[i].apply(bForce);
+            }
+          }
+        }
+
       }//Peg class
 
       class Ball {
         pos = [0,0];
+        prevPos = [0,0];
 
         constructor(x,y,sz){
           this.pos[0] = x;
           this.pos[1] = y;
+          this.prevPos[0] = x;
+          this.prevPos[1] = y;
           this.size = sz;
-          this.speed = [0,0]//[x,y]
-          this.accel = [0,0]//[x,y] again
+          this.speed = [0,0];//[x,y]
+          this.accel = [0,0];//[x,y] again
         }//constructor
 
         apply(force){
@@ -221,10 +252,17 @@ Time spent: x
         }//apply
 
         run(){
+          this.prevPos = [...this.pos];
+          this.speed = [0,0];
           this.speed[0]+=this.accel[0];
           this.speed[1]+=this.accel[1];
           this.pos[0]+=this.speed[0];
           this.pos[1]+=this.speed[1];
+
+          if(this.pos[1]>=(29.2/32)*cHeight){
+            const index = balls.indexOf(this);
+            if (index !== -1) balls.splice(index, 1);
+          }
         }//run
 
         display(){
@@ -250,18 +288,35 @@ Time spent: x
         return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
       }//lerpColor this is a lot of work...
 
-      function spawnBall(){
+      function spawnBall(num){
       	let entryPts = [grid[0][0].pos[0]+(ballSize*1.5),grid[0][2].pos[0]-(ballSize*1.5)];
-        let newBall = new Ball(getRandomInt(entryPts[0],entryPts[1]),0,pegSize*2);
+        for(let i = 0; i < num; i++){
+          let newBall = new Ball(getRandomInt(entryPts[0],entryPts[1]),.05*cHeight,pegSize*2);
+          newBall.speed[0] = getRandomInt(.9,1.5);
+          newBall.speed[0] = newBall.speed[0]*Math.pow(-1, Math.round(getRandomInt(0,2)));
+          balls.push(newBall);
+        }
 
-        balls.push(newBall);
-      }//spawnBall
+        return("spawned ball x"+num)
+      }//spawnBall(num)
 
       function getRandomInt(min, max) {
         const minCeiled = Math.ceil(min);
         const maxFloored = Math.floor(max);
         return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
       }//getRandomInt
+      
+      function dist(x1,y1,x2,y2){
+        let a = x1 - x2;
+        let b = y1 - y2;
+
+        return Math.sqrt( a*a + b*b );
+      }//dist
+
+      function radians2degrees(radians){
+        var pi = Math.PI;
+        return radians * (180/pi);
+      }//radians2degrees
 
     </script>
 
