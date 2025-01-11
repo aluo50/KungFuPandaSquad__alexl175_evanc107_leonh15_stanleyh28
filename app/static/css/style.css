@@ -1,0 +1,41 @@
+.table-background {
+    background: url("/static/images/blackjack.jpg") no-repeat center center;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column; /* Stacks dealer-area over player-area */
+    align-items: center;
+    justify-content: space-around;
+    height: 100vh; /* or some fixed px if you prefer */
+    margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.dealer-area, .player-area {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.dealer-cards img, .player-cards img {
+    width: 80px;  /* adjust as needed */
+    margin: 0 5px;
+}
+
+.action-buttons {
+    margin-top: 1rem;
+}
+
+.action-buttons button {
+    margin: 0 5px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+#play-again-button {
+    display: none;
+}
+
+#game-buttons {
+    display: block;
+}

@@ -6,10 +6,10 @@
 # Time spent: x
 
 from flask import Flask, request, render_template, redirect, url_for, flash, session
-
 import sqlite3
 import os
 import database
+from games.blackjack import calculate_hand_value, initialize_game, player_hit, dealer_play, determine_winner, double_down
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(32)
@@ -51,6 +51,68 @@ def register():
         return redirect(url_for('register'))
     
     return render_template("login.html")
+
+@app.route('/blackjack', methods=["GET", "POST"])
+def play_blackjack():
+    # Only initialize if 'deck' is not in session,
+    # meaning there's no active game yet.
+    if 'deck' not in session:
+        initialize_game()
+    return render_template('blackjack.html')
+
+@app.route('/hit', methods=["POST"])
+def hit():
+    player_hit()
+    player_cards_html = ''.join(
+        [f'<img src="{url_for("static", filename="images/cards/" + str(card) + ".png")}">' for card in session['player_hand']]
+    )
+    dealer_cards_html = ''.join(
+        [f'<img src="{url_for("static", filename="images/cards/" + str(card) + ".png")}">' for card in session['dealer_hand']]
+    )
+    if calculate_hand_value(session['player_hand']) > 21:
+        result = determine_winner()
+        return {"player_cards": player_cards_html, "dealer_cards": dealer_cards_html, "result": result}
+    else:
+        return {"player_cards": player_cards_html, "dealer_cards": dealer_cards_html}
+
+@app.route('/stand', methods=["POST"])
+def stand():
+    dealer_play()
+    result = determine_winner()
+    player_cards_html = ''.join(
+        [f'<img src="{url_for("static", filename="images/cards/" + str(card) + ".png")}">' for card in session['player_hand']]
+    )
+    dealer_cards_html = ''.join(
+        [f'<img src="{url_for("static", filename="images/cards/" + str(card) + ".png")}">' for card in session['dealer_hand']]
+    )
+    return {"player_cards": player_cards_html, "dealer_cards": dealer_cards_html, "result": result}
+
+@app.route('/double_down', methods=["POST"])
+def double_down_route():
+    double_down()
+    result = determine_winner()
+    player_cards_html = ''.join(
+        [f'<img src="{url_for("static", filename="images/cards/" + str(card) + ".png")}">' for card in session['player_hand']]
+    )
+    dealer_cards_html = ''.join(
+        [f'<img src="{url_for("static", filename="images/cards/" + str(card) + ".png")}">' for card in session['dealer_hand']]
+    )
+    return {"player_cards": player_cards_html, "dealer_cards": dealer_cards_html, "result": result}
+
+@app.route('/play_again', methods=["POST"])
+def play_again():
+    initialize_game()
+    session.modified = True  
+
+    # Send the new cards back to the frontend
+    player_cards_html = ''.join(
+        [f'<img src="{url_for('static', filename='images/cards/' + str(card) + '.png')}">' for card in session['player_hand']]
+    )
+    dealer_cards_html = ''.join(
+        [f'<img src="{url_for('static', filename='images/cards/' + str(card) + '.png')}">' for card in session['dealer_hand']]
+    )
+
+    return {"player_cards": player_cards_html, "dealer_cards": dealer_cards_html}
 
 if __name__ == "__main__":
     app.run(debug=True)

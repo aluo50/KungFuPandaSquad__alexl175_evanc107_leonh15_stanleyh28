@@ -5,41 +5,77 @@
 # 2025-1-9
 # Time spent: x
 
+from flask import session
 import random
 
 def get_card(num):
-    quotient = num//13
-    card_value = num%13
-
-    card_value += 1
+    quotient = num // 13
+    card_value = num % 13 + 1
+    
     if card_value == 1:
         ace = True
-        type = None
-    else:
-        if card_value >= 11:
-            if card_value == 11:
-                type = "J"
-            elif card_value == 12:
-                type = "Q"
-            else:
-                type = "K"
-
-            card_value = 10
-        else:
-            type = None
+        card_type = 'A'
+        card_value = 11
+    elif card_value >= 11:
+        card_type = ['J', 'Q', 'K'][card_value - 11]
+        card_value = 10
         ace = False
-    return quotient, card_value, ace, type
+    else:
+        card_type = None
+        ace = False
 
-def play_game():
-    game = True
-    cards = [i for i in range(52)]
-    bot_hand = 0
-    player_hand = 0
-    bet_amount = None
-    while bet_amount == None:
-        try:
-            bet_amount = int(input("How much would you like to bet in this game? "))
-        except:
-            print("Invalid input. Input an integer.")
-            bet_amount = None
-    #while game == True:
+    return quotient, card_value, ace, card_type
+
+def calculate_hand_value(cards):
+    total = 0
+    aces = 0
+    for card in cards:
+        suit, value, ace, card_type = get_card(card)
+        total += value
+        if ace:
+            aces += 1
+    
+    while total > 21 and aces > 0:
+        total -= 10
+        aces -= 1
+    
+    return total
+
+def initialize_game():
+    session['deck'] = [i for i in range(52)]
+    session['player_hand'] = random.sample(session['deck'], 2)
+    for card in session['player_hand']:
+        session['deck'].remove(card)
+
+    session['dealer_hand'] = random.sample(session['deck'], 2)
+    for card in session['dealer_hand']:
+        session['deck'].remove(card)
+
+def player_hit():
+    card = random.sample(session['deck'], 1)[0]
+    session['player_hand'].append(session['deck'].pop(session['deck'].index(card)))
+    session.modified = True
+
+def dealer_play():
+    while calculate_hand_value(session['dealer_hand']) < 17:
+        card = random.sample(session['deck'], 1)[0]
+        session['dealer_hand'].append(session['deck'].pop(session['deck'].index(card)))
+        session.modified = True
+        
+def double_down():
+    player_hit()
+    # Double bet amount
+    session.modified = True
+
+def determine_winner():
+    player_value = calculate_hand_value(session['player_hand'])
+    dealer_value = calculate_hand_value(session['dealer_hand'])
+
+    if player_value > 21:
+        return 'bust'
+    elif dealer_value > 21 or player_value > dealer_value:
+        return 'win'
+    elif player_value == dealer_value:
+        return 'tie'
+    else:
+        return 'lose'
