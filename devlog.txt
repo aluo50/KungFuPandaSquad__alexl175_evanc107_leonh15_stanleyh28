@@ -20,3 +20,10 @@ evanC -- 2025-1-11 0:33
    - spawning balls now works through console
    - ball bouncing works and can be modified accordingly
    - working on rigging plinko to work in casino's favor
+
+stanleyH - 2025-1-11 0:43
+- created blackjack game
+- displays cards and game functions properly
+- working on adding animations and creating endscreen
+- made changes to blackjack.html and __init__ to host blackjack game
+- added image folder in static folder for images
