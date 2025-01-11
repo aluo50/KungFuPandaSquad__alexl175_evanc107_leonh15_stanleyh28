@@ -13,7 +13,8 @@ Time spent: x
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>plinko</title>
-     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
       canvas {
         border:1px solid #ffffff;
@@ -46,24 +47,32 @@ Time spent: x
       var gravity; // downward force
       var bouncyness; // how bouncy pegs are
 
-      //actualgame
-      var cWidth = 1440;
-      var cHeight = 640;
+      //gameworks
+      var bWidth;
+      var bHeight;
+      var cWidth;
+      var cHeight;
+
+      var running;
 
       function startGame(){
         // balance = {{bal}};
         balance = 100000;
+
+        bWidth = window.innerWidth;
+        bHeight = window.innerHeight;
+        cWidth = (1440/2160)*bWidth;
+        cHeight = (640/1440)*cWidth;
 
         balls = [];
 
         rows = 16;
         risk = "low";
         createGrid();
-        // console.log(grid);
         gravity = [0,0.1];
-        bouncyness = 1.5;
+        bouncyness = 1.15;
 
-
+        running = false;
         
         board.start();
       }//startGame
@@ -84,6 +93,31 @@ Time spent: x
       }//board
 
       function updateGameArea(){
+        bWidth = window.innerWidth;
+        bHeight = window.innerHeight;
+        cWidth = (1440/2160)*bWidth;
+        cHeight = (640/1440)*cWidth;
+
+        createGrid();
+
+        for (let i = balls.length - 1; i >= 0; i--) {
+          if(balls[i]!=null){
+            balls[i].apply(gravity);
+            balls[i].run();
+          }
+        }
+
+        for(let i = 0; i < grid.length; i++){
+          for(let n = 0; n < grid[i].length; n++){
+            grid[i][n].bounceEm();
+          }
+        }
+
+        displayEverything();
+      }//updateGameArea
+
+      function displayEverything(){
+        //makes the rounded rectangular canvas
         board.clear();
         board.frameNo+=1;
         board.context.fillStyle = "#0f1728";
@@ -94,26 +128,24 @@ Time spent: x
         board.context.stroke();
         board.context.globalAlpha = 1;
 
-        createGrid();
-
+        //display balls
         for (let i = balls.length - 1; i >= 0; i--) {
           if(balls[i]!=null){
-            balls[i].apply(gravity);
             balls[i].display();
-            balls[i].run();
           }
         }
 
+        //display pegs
         for(let i = 0; i < grid.length; i++){
           for(let n = 0; n < grid[i].length; n++){
             grid[i][n].display();
-            grid[i][n].bounceEm();
           }
         }
 
+        //other stuff
         displayMults();
-        displaySettings();
-      }//updateGameArea
+        displayUI();
+      }
 
       function displayMults(){
         let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
@@ -164,11 +196,12 @@ Time spent: x
         }
       }//displayMults
 
-      function displaySettings(){
+      function displayUI(){
         let side2side = [0,(5/16)*cWidth]
         const ctx = board.context;
+        let prop = 1440/2160;
 
-
+        //grey half box
         ctx.fillStyle ="#334155";
         ctx.beginPath();
         ctx.roundRect(0,0,side2side[1],cHeight,1/40*cHeight);
@@ -179,22 +212,22 @@ Time spent: x
         ctx.stroke();
         ctx.globalAlpha = 1;
 
+        //green drop ball buttons
         ctx.fillStyle = "#22c55e";
         ctx.beginPath();
-        ctx.roundRect((1/20)*cWidth,(7/12)*cHeight,side2side[1]-((2/20)*cWidth),cHeight/12,1/40*cHeight);
+        ctx.roundRect((1/80)*cWidth,(7/12)*cHeight,side2side[1]-((2/80)*cWidth),cHeight/12,1/40*cHeight);
         ctx.fill();
         ctx.globalAlpha = 0;
         ctx.strokeStyle = "#0f1728";
         ctx.stroke();
         ctx.globalAlpha = 1;
-
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#0f1728";
-        ctx.font = "30px Arial";
-        ctx.fillText("Hello World", (1/20)*cWidth+(.5*(side2side[1]-((2/20)*cWidth))), ((7/12)*cHeight)+0.5*(cHeight/12));
+        ctx.font = `400 ${24*prop}px 'Calibri', sans-serif`;
+        ctx.fillText("Drop Ball", (1/20)*cWidth+(.5*(side2side[1]-((2/20)*cWidth))), ((7/12)*cHeight)+0.5*(cHeight/12));
 
-      }//displaySettings
+      }//displayUI
 
       function createGrid(){
         let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
@@ -292,7 +325,7 @@ Time spent: x
           this.pos[0]+=this.speed[0];
           this.pos[1]+=this.speed[1];
 
-          if(this.pos[1]>=(29.2/32)*cHeight){
+          if(this.pos[1]>=((29.4/32)*cHeight)-ballSize+(1/100)*cHeight){
             const index = balls.indexOf(this);
             if (index !== -1) balls.splice(index, 1);
           }
@@ -333,24 +366,60 @@ Time spent: x
         return("spawned ball x"+num)
       }//spawnBall(num)
 
+
+
+
+      //HELPER FUNCTIONS
+      
       function getRandomInt(min, max) {
         const minCeiled = Math.ceil(min);
         const maxFloored = Math.floor(max);
-        return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
-      }//getRandomInt
+        return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+      }//getRandomInt gets random integer with exclusive max and inclusive minimum
       
       function dist(x1,y1,x2,y2){
         let a = x1 - x2;
         let b = y1 - y2;
 
         return Math.sqrt( a*a + b*b );
-      }//dist
+      }//dist gets distance between 2 points
 
       function radians2degrees(radians){
         var pi = Math.PI;
         return radians * (180/pi);
-      }//radians2degrees
+      }//radians2degrees converts radians to degrees
 
+      function detectLeftButton(evt){
+        evt = evt || window.event;
+        if("buttons" in evt){
+          return evt.buttons == 1;
+        }
+        var button = evt.which || ev.button;
+        return button == 1;
+      }//detectLeftButton detects left mouse click, from stack overflow
+
+      function getMousePos(canvas, evt){
+        var rect = canvas.getBoundingClientRect();
+        return [evt.clientX - rect.left, evt.clientY - rect.top];
+      }//getMousePos gets mouse position relative to canvas, derived from stack overflow
+
+      board.canvas.addEventListener('click', function(event){
+        var side2side = [0,(5/16)*cWidth]
+        var posMouse = getMousePos(board.canvas, event);
+        //if(detectLeftButton(event)){
+        if(1==1){
+          //dropBall
+          if((posMouse[0]>=cWidth/80)&&(posMouse[0]<=(cWidth/80)+side2side[1]-((2/80)*cWidth))){
+            if((posMouse[1]>=((7/12)*cHeight))&&(posMouse[1]<=((7/12)*cHeight)+(cHeight/12))){
+              spawnBall(1);
+            }
+          }
+
+
+        }
+
+        console.log("left click at ("+posMouse[0]+", "+posMouse[1]+")");
+      });
     </script>
 
     <div class="btn-group">
