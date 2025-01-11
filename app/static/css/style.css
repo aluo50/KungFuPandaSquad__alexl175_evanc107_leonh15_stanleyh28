@@ -1,41 +1,118 @@
+/* static/css/style.css */
+
+/* Table background */
 .table-background {
-    background: url("/static/images/blackjack.jpg") no-repeat center center;
-    background-size: cover;
-    background-position: center;
+  background: url("/static/images/blackjack.jpg") no-repeat center center;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column; /* dealer-area on top, player-area below */
+  align-items: center;
+  justify-content: space-around;
+  height: 100vh;
+  margin: 0 auto;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* Dealer/Player areas */
+#dealer-area,
+#player-area {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+/* Lays out cards next to neach other */
+.dealer-cards,
+.player-cards {
     display: flex;
-    flex-direction: column; /* Stacks dealer-area over player-area */
-    align-items: center;
-    justify-content: space-around;
-    height: 100vh; /* or some fixed px if you prefer */
-    margin: 0 auto;
-    padding: 1rem;
-    box-sizing: border-box;
+    flex-direction: row;  
+    justify-content: center;
+    align-items: center; 
+    flex-wrap: nowrap;        
+    gap: 10px;          
+    height: 100%; 
 }
 
-.dealer-area, .player-area {
-    text-align: center;
-    margin: 1rem 0;
+.dealer-cards img,
+.player-cards img {
+    width: 60px;     
+    height: auto;
+    transition: transform 0.8s ease-in-out;
 }
 
-.dealer-cards img, .player-cards img {
-    width: 80px;  /* adjust as needed */
-    margin: 0 5px;
+.back {
+  background: url("/static/images/cards/back.png") no-repeat center center;
+  background-size: cover;
+  width: 80px;
+  height: 110px; 
 }
-
+ /* action buttons (hit, stand, double down, play again) */
 .action-buttons {
-    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;  
+    justify-content: center;
+    align-items: center;
+    gap: 10px;              
+    position: absolute;
+    right: 20px;           
+    top: 50%;            
+    transform: translateY(-50%);
 }
 
 .action-buttons button {
-    margin: 0 5px;
-    padding: 0.5rem 1rem;
+    padding: 10px 20px;
+    font-size: 1.2rem;
     cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #28a745;  
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.3s ease-in-out;
 }
 
-#play-again-button {
-    display: none;
+.action-buttons button:hover {
+    background-color: #218838; 
 }
 
-#game-buttons {
-    display: block;
+
+/* End screen overlay */
+#end-screen {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 2rem;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 2s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+#end-screen button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Shuffle animation */
+.shuffling {
+  animation: shuffleAnim 1s infinite;
+}
+@keyframes shuffleAnim {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(5deg); }
+  50%  { transform: rotate(0deg); }
+  75%  { transform: rotate(-5deg); }
+  100% { transform: rotate(0deg); }
 }

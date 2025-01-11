@@ -74,7 +74,10 @@ def determine_winner():
     if player_value > 21:
         return 'bust'
     elif dealer_value > 21 or player_value > dealer_value:
-        return 'win'
+        if player_value == 21:
+            return 'blackjack'
+        else:
+            return 'win'
     elif player_value == dealer_value:
         return 'tie'
     else:

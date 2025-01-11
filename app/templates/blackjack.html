@@ -1,80 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Steak Co. Blackjack</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Steak Co. Blackjack</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+    var initialPlayerCards = {{ player_cards | tojson }};
+    var initialDealerCards = {{ dealer_cards | tojson }};
+  </script>
+
+  <!-- Our Blackjack logic -->
+  <script src="{{ url_for('static', filename='js/blackjack.js') }}"></script>
 </head>
 <body>
-    <header>
-        <h1>Steak Co. Blackjack</h1>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            <ul>
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        {% endwith %}
-    </header>
+  <header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  </header>
 
-    <!-- Table container that holds both dealer and player areas -->
-    <div class="table-background">
-        <div class="dealer-area">
-            <h2>Dealer's Cards</h2>
-            <div class="dealer-cards" id="dealer-cards">
-                {% for card in session['dealer_hand'] %}
-                    <img src="{{ url_for('static', filename='images/cards/' ~ card ~ '.png') }}" alt="Card">
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="player-area">
-            <h2>Player's Cards</h2>
-            <div class="player-cards" id="player-cards">
-                {% for card in session['player_hand'] %}
-                    <img src="{{ url_for('static', filename='images/cards/' ~ card ~ '.png') }}" alt="Card">
-                {% endfor %}
-            </div>
-
-            <!-- Action buttons -->
-            <div class="action-buttons">
-                <button onclick="playAction('hit')">Hit</button>
-                <button onclick="playAction('stand')">Stand</button>
-                <button onclick="playAction('double_down')">Double Down</button>
-                <button onclick="playAction('play_again')">Play Again</button>
-            </div>
-
-            <h3 id="result-message"></h3>
-        </div>
+  <!-- Main table area -->
+  <div class="table-background">
+    <!-- Deck in center -->
+    <div id="deck">
+      <div class="card back"></div>
     </div>
 
-    <!-- AJAX Script -->
-    <script>
-        function playAction(action) {
-            $.ajax({
-                url: '/' + action, 
-                method: 'POST',
-                success: function(data) {
-                    if (action === 'play_again') {
-                        // Display the new cards and clear the result message
-                        $("#dealer-cards").html(data.dealer_cards);
-                        $("#player-cards").html(data.player_cards);
-                        $("#result-message").text('');
-                    } else {
-                        // Update the cards dynamically for hit/stand actions
-                        $("#dealer-cards").html(data.dealer_cards);
-                        $("#player-cards").html(data.player_cards);
-                        if (data.result) {
-                            $("#result-message").text(data.result);
-                        }
-                    }
-                }
-            });
-        }
-    </script>
+    <!-- Dealer area -->
+    <div id="dealer-area">
+      <h2>Dealer's Cards</h2>
+      <div class="dealer-cards" id="dealer-cards"></div>
+    </div>
+
+    <!-- Player area -->
+    <div id="player-area">
+      <h2>Player's Cards</h2>
+      <div class="player-cards" id="player-cards"></div>
+
+      <!-- Action buttons -->
+      <div class="action-buttons">
+        <button onclick="hit()">Hit</button>
+        <button onclick="stand()">Stand</button>
+        <button onclick="doubleDown()">Double Down</button>
+      </div>
+
+      <h3 id="result-message"></h3>
+    </div>
+  </div>
+
+  <!-- End screen overlay -->
+  <div id="end-screen">
+    <p id="final-result"></p>
+    <button onclick="playAgain()">Play Again</button>
+  </div>
 </body>
 </html>

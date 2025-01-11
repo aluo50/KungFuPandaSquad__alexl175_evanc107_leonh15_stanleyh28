@@ -27,3 +27,6 @@ stanleyH - 2025-1-11 0:43
 - working on adding animations and creating endscreen
 - made changes to blackjack.html and __init__ to host blackjack game
 - added image folder in static folder for images
+
+stanleyH - 2025-1-11 16:22
+- added blackjack card animations
