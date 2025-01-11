@@ -14,3 +14,9 @@ alexL -- 2025-1-10 11:00
 - added home, logout, login html
 - added db functions for user login/logout
 - added flask routing for home, login, and logout
+
+evanC -- 2025-1-11 0:33
+- changes to plinko.html:
+   - spawning balls now works through console
+   - ball bouncing works and can be modified accordingly
+   - working on rigging plinko to work in casino's favor
