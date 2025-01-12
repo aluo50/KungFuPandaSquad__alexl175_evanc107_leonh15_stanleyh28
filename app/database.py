@@ -25,25 +25,41 @@ def create_db():
         CREATE TABLE IF NOT EXISTS users (
             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
-            password_hash TEXT NOT NULL
+            password_hash TEXT NOT NULL,
+            balance INTEGER NOT NULL DEFAULT 1000
+        );
+    ''')
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS game (
+            game_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            game_type TEXT NOT NULL, 
+            status TEXT, 
+            FOREIGN KEY(user_id) REFERENCES users(user_id)
+        );
+    ''')
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS blackjack_sessions (
+            blackjack_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            game_id INTEGER NOT NULL,
+            deck TEXT,
+            player_hand TEXT,
+            dealer_hand TEXT,
+            bet INTEGER,
+            FOREIGN KEY(game_id) REFERENCES games(game_id)
         );
     ''')
     cur.execute('''
         CREATE TABLE IF NOT EXISTS transactions (
-            transaction_id INTEGER,
-            user_id INTEGER,
+            transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             game TEXT,
-            change INTEGER
+            change INTEGER,
+            new_balance INTEGER,
+            FOREIGN KEY(user_id) REFERENCES users(user_id)
         );
     ''')
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS state (
-            state_id INTEGER,
-            user_id INTEGER,
-            game TEXT,
-            state_data TEXT
-        );
-    ''')
+    
     conn.commit()
     conn.close()
 
@@ -93,3 +109,6 @@ def return_user(user):
     user_info = cur.fetchone()
     conn.close()
     return user_info
+
+
+
