@@ -110,6 +110,7 @@ def return_user(user):
     conn.close()
     return user_info
 
+# adds 'amount' to user's balance and records transactions
 def update_balance(user_id, game_name, amount):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -129,3 +130,53 @@ def update_balance(user_id, game_name, amount):
     conn.commit()
     conn.close()
     return new_balance
+
+# creates blackjack game, inserts new rows in blackjack_sessions and game
+def create_blackjack(user_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO game (user_id, game_type, status) VALUES (?, ?, ?)",
+        (user_id, 'blackjack', 'in-progress'))
+    game_id = cur.lastrowid
+
+    cur.execute(
+        "INSERT INTO blackjack_sessions (game_id, deck, player_hand, dealer_hand, bet) VALUES (?, ?, ?, ?, ?)",
+        (game_id, json.dumps([]), json.dumps([]), json.dumps([]), 0))
+
+    conn.commit()
+    conn.close()
+    return game_id
+
+
+# loads stored blackjack session returns dict with deck, hands, bet
+def load_blackjack(game_id)
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM blackjack_sessions WHERE game_id=?", (game_id,))
+    row = cur.fetchone()
+    conn.close()
+
+    if row:
+        return{
+            'blackjack_id': row['blackjack_id'],
+            'game_id': row['game_id'],
+            'deck': json.loads(row['deck']),
+            'player_hand': json.loads(row['player_hand']),
+            'dealer_hand': json.loads(row['dealer_hand']),
+            'bet': row['bet']
+        }
+    return None
+
+# update blackjack_sessions row with latest game state
+def save_blackjack_game(game_id, deck, player_hand, dealer_hand, bet):
+    conn = get_db_connection()
+    cur= conn.cursor()
+
+    cur.execute(" UPDATE blackjack_sessions SET deck=?, player_hand=?, dealer_hand=?, bet=? WHERE game_id=?",
+    (json.dumps(deck), json.dumps(player_hand), json.dumps(dealer_hand), bet, game_id))
+
+    conn.commit()
+    conn.close()
