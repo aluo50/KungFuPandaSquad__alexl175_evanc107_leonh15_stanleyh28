@@ -151,7 +151,7 @@ def create_blackjack(user_id):
 
 
 # loads stored blackjack session returns dict with deck, hands, bet
-def load_blackjack(game_id)
+def load_blackjack(game_id):
     conn = get_db_connection()
     cur = conn.cursor()
 
@@ -171,7 +171,7 @@ def load_blackjack(game_id)
     return None
 
 # update blackjack_sessions row with latest game state
-def save_blackjack_game(game_id, deck, player_hand, dealer_hand, bet):
+def save_blackjack(game_id, deck, player_hand, dealer_hand, bet):
     conn = get_db_connection()
     cur= conn.cursor()
 
