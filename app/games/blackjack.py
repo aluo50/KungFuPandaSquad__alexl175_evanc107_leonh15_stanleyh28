@@ -72,13 +72,25 @@ def determine_winner():
     dealer_value = calculate_hand_value(session['dealer_hand'])
 
     if player_value > 21:
-        return 'bust'
+        outcome = 'bust'
     elif dealer_value > 21 or player_value > dealer_value:
         if player_value == 21:
-            return 'blackjack'
+            outcome = 'blackjack'
         else:
-            return 'win'
+            outcome = 'win'
     elif player_value == dealer_value:
-        return 'tie'
+        outcome = 'tie'
     else:
-        return 'lose'
+        outcome = 'lose'
+    
+    if 'username' in session:
+        user_info = database.return_user(session['username'])
+        user_id = user_info['user_id']
+        if outcome in ['win', 'blackjack']:
+            database.update_balance(user_id, "blackjack", +50)
+        elif outcome in ['lose', 'bust']:
+            database.update_balance(user_id, "blackjack", -50)
+    
+    return outcome
+
+    

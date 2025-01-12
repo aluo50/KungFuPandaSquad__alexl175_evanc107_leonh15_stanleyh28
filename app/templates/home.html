@@ -20,7 +20,7 @@ Time spent: x
         <nav>
             <ul>
                 <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li><a href="{{ url_for('play_blackjack') }}">Home</a></li>
+                <li><a href="{{ url_for('play_blackjack') }}">Blackjack</a></li>
             </ul>
         </nav>
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -36,6 +36,7 @@ Time spent: x
 
     {% if username %}
         <h2>Welcome back, {{ username }}!</h2>
+        <p>Your current balance is: <strong>{{ balance }}</strong></p>
         <form action="{{ url_for('logout') }}" method="POST">
             <button type="submit">Logout</button>
         </form>

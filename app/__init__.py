@@ -30,8 +30,12 @@ def index():
 @app.route("/home")
 def home():
     if "username" in session:
-        return render_template("home.html", username=session["username"])
-    return render_template("home.html", username=None)
+        user_info = database.return_user(session["username"])
+        balance = user_info["balance"]
+
+        return render_template("home.html", username=session["username"], balance=balance)
+    else:
+        return render_template("home.html", username=None, balance=None)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -62,8 +66,35 @@ def register():
 @app.route("/blackjack", methods=["GET"])
 def play_blackjack():
     # Initialize if no deck in session
-    if "deck" not in session:
-        initialize_game()
+    if "username" in session: 
+        from database import load_blackjack, create_blackjack, save_blackjack
+        user_info = database.return_user(session["username"])
+        user_id = user_info['user_id']
+
+        conn = database.get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT game_id FROM game WHERE user_id=? AND game_type ='blackjack' AND status='in-progress' ORDER BY game_id DESC LIMIT 1",
+        (user_id,))
+        existing_game = cur.fetchone()
+        conn.close()
+
+        if existing_game:
+            game_id = existing_game['game_id']
+            session['db_game_id'] = game_id 
+            blackjack_state=load_blackjack(game_id)
+
+            session['deck'] = blackjack_state['deck']
+            session['player_hand'] = blackjack_state['player_hand']
+            session['dealer_hand'] = blackjack_state['dealer_hand']
+        
+        else:
+            game_id = create_blackjack(user_id)
+            session['db_game_id'] = game_id
+            initialize_game()
+            save_blackjack(game_id, session['deck'], session['player_hand'],session['dealer_hand'],0)
+    else:
+        if "deck" not in session:
+            initialize_game()
 
     # Retrieve the current hands from session
     player_cards = session.get("player_hand", [])
@@ -129,6 +160,11 @@ def double_down_route():
 def play_again():
     initialize_game()
     session.modified = True
+
+    if 'username' in session and 'db_game_id' in session:
+        from database import save_blackjack
+        game_id = session['db_game_id']
+        save_blackjack(game_id, session['deck'], session['player_hand'],session['dealer_hand'],0)
 
     return jsonify({
         "player_cards": session["player_hand"],
