@@ -17,6 +17,12 @@ Time spent: x
 
     <header>
         <h1>Steak Co.</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('play_blackjack') }}">Home</a></li>
+            </ul>
+        </nav>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             <ul>
