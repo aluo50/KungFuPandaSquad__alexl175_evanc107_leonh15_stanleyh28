@@ -110,5 +110,22 @@ def return_user(user):
     conn.close()
     return user_info
 
+def update_balance(user_id, game_name, amount):
+    conn = get_db_connection()
+    cur = conn.cursor()
 
+    cur.execute("SELECT balance FROM users WHERE user_id=?", (user_id,))
+    row = cur.fetchone()
+    if not row:
+        conn.close()
+        return None
 
+    new_balance = row['balance'] + amount 
+    cur.execute("UPDATE users SET balance=? WHERE user_id=?", (new_balance, user_id))
+    cur.execute(
+        "INSERT INTO transactions(user_id, game, change, new_balance) VALUES (?, ?, ?, ?)",
+        (user_id, game_name, amount, new_balance)
+    )
+    conn.commit()
+    conn.close()
+    return new_balance
