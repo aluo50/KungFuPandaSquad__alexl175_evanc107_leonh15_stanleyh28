@@ -37,6 +37,22 @@ Time spent: x
     {% if username %}
         <h2>Welcome back, {{ username }}!</h2>
         <p>Your current balance is: <strong>{{ balance }}</strong></p>
+        {% if saved_games %}
+            <h3>Your active games:</h3>
+            {% for game in saved_games %}
+            <li> 
+                Game Type: {{ game["game_type"] }}
+                Status : {{ game["status"] }}
+                <form action="{{ url_for('resume_game') }}" method = "POST">
+                    <input type="hidden" name="game_id" value="{{ game["game_id"] }}">
+                    <button type="submit">Resume</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+            <p> No in progress games. Start a new one!</p>
+        {% endif %}
         <form action="{{ url_for('logout') }}" method="POST">
             <button type="submit">Logout</button>
         </form>

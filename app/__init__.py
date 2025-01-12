@@ -9,6 +9,7 @@ from flask import Flask, request, render_template, redirect, url_for, flash, ses
 import sqlite3
 import os
 import database
+import json
 from games.blackjack import (
     calculate_hand_value,
     initialize_game,
@@ -32,10 +33,15 @@ def home():
     if "username" in session:
         user_info = database.return_user(session["username"])
         balance = user_info["balance"]
-
-        return render_template("home.html", username=session["username"], balance=balance)
+        conn = database.get_db_connection()
+        cur=conn.cursor()
+        cur.execute("SELECT game_id, game_type, status FROM game WHERE user_id=? AND status='in-progress'",
+        (user_info["user_id"],))
+        saved_games = cur.fetchall()
+        conn.close()
+        return render_template("home.html", username=session["username"], balance=balance, saved_games=saved_games)
     else:
-        return render_template("home.html", username=None, balance=None)
+        return render_template("home.html", username=None, balance=None, saved_games=[])
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -61,6 +67,24 @@ def register():
             return redirect(url_for("home"))
         return redirect(url_for("register"))
     return render_template("login.html")
+
+@app.route("/resume_game", methods=["POST"])
+def resume_game():
+    game_id = request.form.get("game_id")
+    blackjack_state = database.load_blackjack(game_id)
+
+    if blackjack_state:
+        session['db_game_id'] = game_id
+        session['deck'] = blackjack_state['deck']
+        session['player_hand'] = blackjack_state['player_hand']
+        session['dealer_hand'] = blackjack_state['dealer_hand']
+
+        flash("Resumed saved game", "info")
+        return redirect(url_for("play_blackjack"))
+    else:
+        flash("couldn't find selected game")
+        return redirect(url_for("home"))
+    
 
 # blackjack game
 @app.route("/blackjack", methods=["GET"])

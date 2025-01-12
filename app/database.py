@@ -8,6 +8,7 @@
 from flask import request, flash, session
 import sqlite3
 import os
+import json
 from werkzeug.security import generate_password_hash, check_password_hash
 
 DB_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'steakco.db')
@@ -46,7 +47,7 @@ def create_db():
             player_hand TEXT,
             dealer_hand TEXT,
             bet INTEGER,
-            FOREIGN KEY(game_id) REFERENCES games(game_id)
+            FOREIGN KEY(game_id) REFERENCES game(game_id)
         );
     ''')
     cur.execute('''
