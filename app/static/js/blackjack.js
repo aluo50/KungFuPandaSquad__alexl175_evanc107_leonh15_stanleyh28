@@ -1,3 +1,10 @@
+// Alex Luo, Evan Chan, Leon Huang, Stanley Hoo
+// KungFuPandaSquad
+// SoftDev
+// P02: Makers Makin' It, Act I
+// 2025-1-9
+// Time spent: x
+
 $(document).ready(function () {
   startGameSequence();
 });
@@ -25,18 +32,46 @@ function calculateHandValue(cards) {
     return total;
 }
 
+function updateScore(card, position) {
+  if (position === "player") {
+    // Add the new card to the player's array
+    initialPlayerCards.push(card);
+
+    // Recalculate player's score
+    let newScore = calculateHandValue(initialPlayerCards);
+
+    // Update the DOM
+    $("#player-score").text(newScore);
+
+  } else if (position === "dealer") {
+    // Add the new card to the dealer's array
+    initialDealerCards.push(card);
+
+    // Recalculate dealer's score
+    let newScore = calculateHandValue(initialDealerCards);
+
+    // Update the DOM
+    $("#dealer-score").text(newScore);
+  }
+}
 
 // Shuffle + Deal Initial Cards
 function startGameSequence() {
   // Shuffle animation
   $("#deck .card").addClass("shuffling");
+    
+  firstPlayerCards = initialPlayerCards.slice();
+  firstDealerCards = initialDealerCards.slice();
+    
+  initialPlayerCards = [];
+  initialDealerCards = [];
 
   // deal
   setTimeout(() => {
     $("#deck .card").removeClass("shuffling");
-    dealInitialCards(initialPlayerCards, initialDealerCards);
+    dealInitialCards(firstPlayerCards, firstDealerCards);
   }, 2000);
-  if (calculateHandValue(initialPlayerCards) == 21) {
+  if (calculateHandValue(firstPlayerCards) == 21) {
       setTimeout(() => stand(), 6000);
   }
 }
@@ -46,13 +81,16 @@ function startGameSequence() {
 function dealInitialCards(player_cards, dealer_cards) {
   // Player 1st card (face-up)
   dealCard("player", "face-up", getCardImage(player_cards[0]));
+  updateScore(player_cards[0], "player");
   // Player 2nd card (face-up)
   setTimeout(() => {
     dealCard("player", "face-up", getCardImage(player_cards[1]));
+    updateScore(player_cards[1], "player");
   }, 600);
   // Dealer 1st card (face-up)
   setTimeout(() => {
     dealCard("dealer", "face-up", getCardImage(dealer_cards[0]));
+    updateScore(dealer_cards[0], "dealer");
   }, 1200);
   // Dealer 2nd card (face-down)
   setTimeout(() => {
@@ -150,12 +188,17 @@ function stand() {
 // hit function
 function hit() {
   $.post("/hit", function (data) {
+    // Animate the newly drawn card
     dealCard("player", "face-up", getCardImage(data.new_card));
 
+    // Update player's score with the new card
+    updateScore(data.new_card, "player");
+
+    // If there's a result (bust, etc.), show end screen
     setTimeout(() => {
-        if (data.result) {
-          showEndScreen(data.result);
-        }
+      if (data.result) {
+        showEndScreen(data.result);
+      }
     }, 1200);
   });
 }
@@ -164,6 +207,7 @@ function doubleDown() {
   // Similar to hit
   $.post("/double_down", function (data) {
     dealCard("player", "face-up", getCardImage(data.new_card));
+    updateScore(data.new_card, "player");
     // If player busts, just display result and dealer doesn't need to draw
     if (data.result === 'bust') {
         setTimeout(() => showEndScreen(data.result), 1200);
@@ -182,6 +226,7 @@ function flipDealerFaceDownCard(faceDownCardNum) {
   if (faceDownDiv.length) {
     faceDownDiv.removeClass("face-down").addClass("face-up");
     faceDownDiv.find("img").attr("src", getCardImage(faceDownCardNum));
+    updateScore(faceDownCardNum, "dealer");
   }
 }
 
@@ -191,6 +236,7 @@ function animateDealerDraws(drawnCards) {
   drawnCards.forEach((cardNum) => {
     setTimeout(() => {
       dealCard("dealer", "face-up", getCardImage(cardNum));
+      updateScore(cardNum, "dealer");
     }, delay);
     delay += 600; // 600 ms delay in between draws
   });
@@ -217,7 +263,15 @@ function playAgain() {
 
     // resets game setup
     $.post("/play_again", function (data) {
+      initialPlayerCards = [];
+      initialDealerCards = [];
+      $("#player-score").text(0);
+      $("#dealer-score").text(0);
       dealInitialCards(data.player_cards, data.dealer_cards);
     });
+      
+    if (calculateHandValue(initialPlayerCards) == 21) {
+      setTimeout(() => stand(), 5000);
+    }
   });
 }

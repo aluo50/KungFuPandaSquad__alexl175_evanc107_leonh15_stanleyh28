@@ -9,28 +9,24 @@ from flask import session
 import random
 
 def get_card(num):
-    quotient = num // 13
     card_value = num % 13 + 1
     
     if card_value == 1:
         ace = True
-        card_type = 'A'
         card_value = 11
     elif card_value >= 11:
-        card_type = ['J', 'Q', 'K'][card_value - 11]
         card_value = 10
         ace = False
     else:
-        card_type = None
         ace = False
 
-    return quotient, card_value, ace, card_type
+    return card_value, ace
 
 def calculate_hand_value(cards):
     total = 0
     aces = 0
     for card in cards:
-        suit, value, ace, card_type = get_card(card)
+        value, ace = get_card(card)
         total += value
         if ace:
             aces += 1

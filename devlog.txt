@@ -40,3 +40,6 @@ evanC - 2025-1-11 16:52
    ->known issues: 
       - when screen is resized during the game, ball positions are not changed and will fall at their non-resized positions
       - text is not resized super well
+
+stanleyH - 2025-1-12 22:00
+- finished blackjack animations, displays score now as well

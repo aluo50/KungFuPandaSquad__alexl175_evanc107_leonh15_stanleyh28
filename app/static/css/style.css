@@ -1,8 +1,18 @@
-/* static/css/style.css */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: url("/static/images/blackjack.jpg") no-repeat center center fixed;
+  background-size: cover;
+  overflow: hidden; 
+}
 
 /* Table background */
 .table-background {
-  background: url("/static/images/blackjack.jpg") no-repeat center center;
   background-size: cover;
   background-position: center;
   display: flex;
@@ -115,4 +125,10 @@
   50%  { transform: rotate(0deg); }
   75%  { transform: rotate(-5deg); }
   100% { transform: rotate(0deg); }
+}
+
+#dealer-area h2,
+#player-area h2 {
+  margin: 0; 
+  padding: 5px;
 }
