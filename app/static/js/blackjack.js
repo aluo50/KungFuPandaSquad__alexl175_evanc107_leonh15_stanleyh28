@@ -82,16 +82,19 @@ function dealInitialCards(player_cards, dealer_cards) {
   // Player 1st card (face-up)
   dealCard("player", "face-up", getCardImage(player_cards[0]));
   updateScore(player_cards[0], "player");
+    
   // Player 2nd card (face-up)
   setTimeout(() => {
     dealCard("player", "face-up", getCardImage(player_cards[1]));
     updateScore(player_cards[1], "player");
   }, 600);
+    
   // Dealer 1st card (face-up)
   setTimeout(() => {
     dealCard("dealer", "face-up", getCardImage(dealer_cards[0]));
     updateScore(dealer_cards[0], "dealer");
   }, 1200);
+    
   // Dealer 2nd card (face-down)
   setTimeout(() => {
     dealCard("dealer", "face-down", getCardImage(dealer_cards[1]));
@@ -149,10 +152,9 @@ function dealCard(target, faceState, cardUrl) {
             top: targetOffset.top,
             left: targetOffset.left + 50 
         },
-        1500, // Slower animation for more realism
+        1500,
         "swing",
         function () {
-            // After animation, reset size and move card to target container
             newCard.removeClass("moving");
             newCard.css({ 
                 top: 0, 
@@ -230,15 +232,16 @@ function flipDealerFaceDownCard(faceDownCardNum) {
   }
 }
 
+
+// Animate dealer's turn
 function animateDealerDraws(drawnCards) {
-  // Animate each newly drawn card (face-up)
   let delay = 0;
   drawnCards.forEach((cardNum) => {
     setTimeout(() => {
       dealCard("dealer", "face-up", getCardImage(cardNum));
       updateScore(cardNum, "dealer");
     }, delay);
-    delay += 600; // 600 ms delay in between draws
+    delay += 600;
   });
 }
 
@@ -255,6 +258,7 @@ function showEndScreen(resultText) {
   $("#end-screen").fadeIn();
 }
 
+// Resets game
 function playAgain() {
   $("#end-screen").fadeOut(() => {
     // Clear existing cards
