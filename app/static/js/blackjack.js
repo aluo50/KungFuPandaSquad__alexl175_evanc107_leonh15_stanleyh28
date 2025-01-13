@@ -113,7 +113,7 @@ function dealCard(target, faceState, cardUrl) {
         .addClass("card moving")
         .addClass(faceState)
         .css({ 
-            width: "60px",
+            width: "80px",
             height: "auto" 
         })
         .append(

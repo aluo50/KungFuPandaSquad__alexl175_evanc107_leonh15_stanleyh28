@@ -31,26 +31,6 @@ def create_db():
         );
     ''')
     cur.execute('''
-        CREATE TABLE IF NOT EXISTS game (
-            game_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            game_type TEXT NOT NULL, 
-            status TEXT, 
-            FOREIGN KEY(user_id) REFERENCES users(user_id)
-        );
-    ''')
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS blackjack_sessions (
-            blackjack_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            game_id INTEGER NOT NULL,
-            deck TEXT,
-            player_hand TEXT,
-            dealer_hand TEXT,
-            bet INTEGER,
-            FOREIGN KEY(game_id) REFERENCES game(game_id)
-        );
-    ''')
-    cur.execute('''
         CREATE TABLE IF NOT EXISTS transactions (
             transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -58,6 +38,14 @@ def create_db():
             change INTEGER,
             new_balance INTEGER,
             FOREIGN KEY(user_id) REFERENCES users(user_id)
+        );
+    ''')
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS blackjack_in_progress (
+            user_id INTEGER NOT NULL,
+            bet_amount INTEGER,
+            player_hand TEXT,
+            dealer_hand TEXT
         );
     ''')
     
@@ -132,27 +120,8 @@ def update_balance(user_id, game_name, amount):
     conn.close()
     return new_balance
 
-# creates blackjack game, inserts new rows in blackjack_sessions and game
-def create_blackjack(user_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    cur.execute(
-        "INSERT INTO game (user_id, game_type, status) VALUES (?, ?, ?)",
-        (user_id, 'blackjack', 'in-progress'))
-    game_id = cur.lastrowid
-
-    cur.execute(
-        "INSERT INTO blackjack_sessions (game_id, deck, player_hand, dealer_hand, bet) VALUES (?, ?, ?, ?, ?)",
-        (game_id, json.dumps([]), json.dumps([]), json.dumps([]), 0))
-
-    conn.commit()
-    conn.close()
-    return game_id
-
-
 # loads stored blackjack session returns dict with deck, hands, bet
-def load_blackjack(game_id):
+def load_blackjack(user_id):
     conn = get_db_connection()
     cur = conn.cursor()
 
@@ -162,22 +131,18 @@ def load_blackjack(game_id):
 
     if row:
         return{
-            'blackjack_id': row['blackjack_id'],
-            'game_id': row['game_id'],
-            'deck': json.loads(row['deck']),
+            'bet': row['bet'],
             'player_hand': json.loads(row['player_hand']),
-            'dealer_hand': json.loads(row['dealer_hand']),
-            'bet': row['bet']
+            'dealer_hand': json.loads(row['dealer_hand'])
         }
     return None
 
 # update blackjack_sessions row with latest game state
-def save_blackjack(game_id, deck, player_hand, dealer_hand, bet):
+def save_blackjack(user_id, bet, player_hand, dealer_hand):
     conn = get_db_connection()
     cur= conn.cursor()
 
-    cur.execute(" UPDATE blackjack_sessions SET deck=?, player_hand=?, dealer_hand=?, bet=? WHERE game_id=?",
-    (json.dumps(deck), json.dumps(player_hand), json.dumps(dealer_hand), bet, game_id))
+    cur.execute(" UPDATE blackjack_in_progress SET bet_amount=?, player_hand=?, dealer_hand=? WHERE user_id=?", (bet, json.dumps(player_hand), json.dumps(dealer_hand), user_id))
 
     conn.commit()
     conn.close()

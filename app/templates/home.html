@@ -16,6 +16,18 @@ Time spent: x
     </head>
 
     <header>
+        <!-- Allows flashing messages in the html -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </header>
+    <div>
         <h1>Steak Co.</h1>
         <nav>
             <ul>
@@ -23,16 +35,7 @@ Time spent: x
                 <li><a href="{{ url_for('play_blackjack') }}">Blackjack</a></li>
             </ul>
         </nav>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            <ul>
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        {% endwith %}
-    </header>
+    </div>
 
     {% if username %}
         <h2>Welcome back, {{ username }}!</h2>
@@ -44,12 +47,11 @@ Time spent: x
                 Game Type: {{ game["game_type"] }}
                 Status : {{ game["status"] }}
                 <form action="{{ url_for('resume_game') }}" method = "POST">
-                    <input type="hidden" name="game_id" value="{{ game["game_id"] }}">
+                    <input type="hidden" name="game_id" value="{{ game['game_id'] }}">
                     <button type="submit">Resume</button>
                 </form>
             </li>
             {% endfor %}
-        </ul>
         {% else %}
             <p> No in progress games. Start a new one!</p>
         {% endif %}

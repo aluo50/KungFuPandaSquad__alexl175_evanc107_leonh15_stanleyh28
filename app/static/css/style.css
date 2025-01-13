@@ -132,3 +132,56 @@ body {
   margin: 0; 
   padding: 5px;
 }
+
+/* Style flash messages */
+
+.flash-messages {
+  position: fixed;
+  top: 30px; /* Distance from the top of the window */
+  left: 50%;
+  transform: translateX(-50%); /* Center the messages horizontally */
+  z-index: 1000; /* Ensure the messages appear above other content */
+  width: 90%; /* Adjust width as needed */
+  max-width: 400px; /* Set a max-width for better presentation */
+}
+
+.flash-message {
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  color: #721c24;
+  opacity: 1; 
+  transition: opacity 0.5s ease; 
+  animation: fadeOut 2s forwards; 
+}
+
+.flash-message {
+padding: 10px;
+margin-bottom: 10px;
+}
+
+.flash-message.error {
+background-color: #f8d7da;
+color: #721c24;
+}
+
+.flash-message.success {
+background-color: #d4edda;
+color: #155724;
+}
+
+/* Keyframes for fade-out animation */
+@keyframes fadeOut {
+  0% {
+      opacity: 1; /* Fully visible */
+      margin-top: 0; /* Keep the message in place */
+  }
+  80% {
+      opacity: 1; /* Remain visible until near the end */
+      margin-top: 0; /* Keep the message in place */
+  }
+  100% {
+      opacity: 0; /* Fully transparent */
+      margin-top: -7%; /* Move the message up so it doesn't block UI*/
+  }
+}

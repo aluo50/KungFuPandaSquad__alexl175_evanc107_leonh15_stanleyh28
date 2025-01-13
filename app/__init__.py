@@ -10,6 +10,7 @@ import sqlite3
 import os
 import database
 import json
+from database import save_blackjack, load_blackjack, update_balance, login_user, add_user
 from games.blackjack import (
     calculate_hand_value,
     initialize_game,
@@ -84,49 +85,52 @@ def resume_game():
     else:
         flash("couldn't find selected game")
         return redirect(url_for("home"))
-
+    
 
 # blackjack game
 @app.route("/blackjack", methods=["GET"])
 def play_blackjack():
-#     if "username" in session:
-#         from database import load_blackjack, create_blackjack, save_blackjack
-#         user_info = database.return_user(session["username"])
-#         user_id = user_info['user_id']
+    if "username" in session: 
+        from database import load_blackjack, create_blackjack, save_blackjack
+        user_info = database.return_user(session["username"])
+        user_id = user_info['user_id']
 
-#         conn = database.get_db_connection()
-#         cur = conn.cursor()
-#         cur.execute("SELECT game_id FROM game WHERE user_id=? AND game_type ='blackjack' AND status='in-progress' ORDER BY game_id DESC LIMIT 1",
-#         (user_id,))
-#         existing_game = cur.fetchone()
-#         conn.close()
+        conn = database.get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT game_id FROM game WHERE user_id=? AND game_type ='blackjack' AND status='in-progress' ORDER BY game_id DESC LIMIT 1",
+        (user_id,))
+        existing_game = cur.fetchone()
+        conn.close()
 
-#         if existing_game:
-#             game_id = existing_game['game_id']
-#             session['db_game_id'] = game_id
-#             blackjack_state=load_blackjack(game_id)
+        if existing_game:
+            game_id = existing_game['game_id']
+            session['db_game_id'] = game_id 
+            blackjack_state=load_blackjack(game_id)
 
-#             session['deck'] = blackjack_state['deck']
-#             session['player_hand'] = blackjack_state['player_hand']
-#             session['dealer_hand'] = blackjack_state['dealer_hand']
-
-#         else:
-#             game_id = create_blackjack(user_id)
-#             session['db_game_id'] = game_id
-#             initialize_game()
-#             save_blackjack(game_id, session['deck'], session['player_hand'],session['dealer_hand'],0)
-#     else:
+            session['deck'] = blackjack_state['deck']
+            session['player_hand'] = blackjack_state['player_hand']
+            session['dealer_hand'] = blackjack_state['dealer_hand']
+        
+        else:
+            game_id = create_blackjack(user_id)
+            session['db_game_id'] = game_id
+            initialize_game()
+            save_blackjack(game_id, session['deck'], session['player_hand'],session['dealer_hand'],0)
+    else:
+        flash('Login to play!', 'error')
+        print(True)
+#         return redirect(url_for("home"))
     # Initialize if no deck in session
     if "deck" not in session:
         initialize_game()
-
+    
     # Retrieve the current hands from session
     player_cards = session.get("player_hand", [])
     dealer_cards = session.get("dealer_hand", [])
-
+    
     player_score = calculate_hand_value(session["player_hand"])
     dealer_score = calculate_hand_value([session["dealer_hand"][0]])
-
+    
     if player_score == 21:
         stand()
     return render_template(
@@ -168,15 +172,6 @@ def stand():
     dealer_play()
     result = determine_winner()
 
-    #if existing_game:
-    #    game_id = existing_game['game_id']
-    #    session['db_game_id'] = game_id
-    #    blackjack_state=load_blackjack(game_id)
-    #    session['deck'] = blackjack_state['deck']
-    #    session['player_hand'] = blackjack_state['player_hand']
-    #  session['dealer_hand'] = blackjack_state['dealer_hand']
-
-
     return jsonify({
         "dealer_hand": session["dealer_hand"],  # the final dealer hand
         "result": result
@@ -187,15 +182,6 @@ def double_down_route():
     double_down()
     result = determine_winner()
     new_card = session["player_hand"][-1]
-
-    #if existing_game:
-    #    game_id = existing_game['game_id']
-    #    session['db_game_id'] = game_id
-    #    blackjack_state=load_blackjack(game_id)
-    #    session['deck'] = blackjack_state['deck']
-    #    session['player_hand'] = blackjack_state['player_hand']
-    #  session['dealer_hand'] = blackjack_state['dealer_hand']
-
 
     return jsonify({
         "new_card": new_card,
