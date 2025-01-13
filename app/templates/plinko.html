@@ -73,7 +73,7 @@ Time spent: x
         bouncyness = 1.15;
 
         running = false;
-        
+
         board.start();
       }//startGame
 
@@ -233,7 +233,7 @@ Time spent: x
         let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
         let ctr = (side2side[0]+side2side[1])/2;//center
         let upandbot = [(1/10)*cHeight,(7/8)*cHeight];//bottom and top bounds
-
+        
         grid = [];
         grid.length = rows;
         let yPadding = (upandbot[1]-upandbot[0])/(rows-1);
@@ -282,14 +282,14 @@ Time spent: x
 
               let angle = radians2degrees(Math.atan2(yDiff, xDiff));//angle in degrees
 
-              
+
 
               // let bForce = [-hyp*Math.cos(angle)*bouncyness,hyp*Math.sin(angle)*bouncyness];
               let direction = [(balls[i].pos[0] - this.pos[0])/hyp, (balls[i].pos[1] - this.pos[1])/hyp];
-              let bForce = [direction[0]*bouncyness, direction[1]*bouncyness*.5];
+              let bForce = [direction[0]*bouncyness, direction[1]*bouncyness];
 
 
-              balls[i].speed = [0,0]
+              balls[i].speed = [balls[i].speed[0]*Math.pow(-1, Math.round(getRandomInt(0,2))),0]
               balls[i].accel = [0,0];
               balls[i].apply(bForce);
             }
@@ -370,13 +370,13 @@ Time spent: x
 
 
       //HELPER FUNCTIONS
-      
+
       function getRandomInt(min, max) {
         const minCeiled = Math.ceil(min);
         const maxFloored = Math.floor(max);
         return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
       }//getRandomInt gets random integer with exclusive max and inclusive minimum
-      
+
       function dist(x1,y1,x2,y2){
         let a = x1 - x2;
         let b = y1 - y2;
