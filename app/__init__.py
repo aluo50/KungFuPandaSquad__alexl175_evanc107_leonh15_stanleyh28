@@ -186,5 +186,12 @@ def play_again():
         "dealer_cards": session["dealer_hand"]
     })
 
+@app.route("/plinko")
+def plinko():
+    if "username" not in session:
+        flash("Login to play Plinko!", "error")
+        return redirect(url_for("login"))
+    return render_template("plinko.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
