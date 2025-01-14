@@ -50,6 +50,9 @@ Time spent: x
       var playing;
       var frameCount;
 
+      //post game
+      var ending;
+
       function startGame(){
         // balance = {{bal}};
         balance = 100000;
@@ -57,6 +60,7 @@ Time spent: x
         resizeCanvas();
 
         playing = false;
+        ending = false;
         numRows = 5;
         numCols = numRows;
         mines = 3;
@@ -159,7 +163,7 @@ Time spent: x
           this.y = py;
           this.tx = this.x;
           this.ty = this.y;
-          this.state = 3;//1=explode,2=clean,3=unflipped
+          this.state = 3;//1=explode,2=clean,3=unflipped,4=revealedclean,5=revealedbomb
           this.sideLength = sl;
           this.newSL = sl;
           this.center = [this.x+this.sideLength/2, this.y+this.sideLength/2];
@@ -171,7 +175,7 @@ Time spent: x
 
         display(){
           if(this.hovering){
-            if(this.y-this.ty<=(1/200)*cHeight){//going up
+            if(this.y-this.ty<=(1/200)*cHeight&&ending == false){//going up
               this.ty-=((this.y+(1/200)*cHeight)-this.ty)/2;
             }
           }
@@ -221,15 +225,33 @@ Time spent: x
             board.context.stroke();
             board.context.globalAlpha = 1;
           }
+          else if(this.state == 4&&(this.animEnd-frameCount<=37)){
+            board.context.fillStyle = "#165419";
+            board.context.beginPath();
+            board.context.roundRect(this.center[0]-this.sideLength*0.7/2,this.center[1]-this.sideLength*0.7/2,this.sideLength*0.7, this.sideLength*0.7,1/40*cHeight);
+            board.context.fill();
+            board.context.globalAlpha = 0;
+            board.context.stroke();
+            board.context.globalAlpha = 1;
+          }
+          else if(this.state == 5&&(this.animEnd-frameCount<=37)){
+            board.context.fillStyle = "#571d1d";
+            board.context.beginPath();
+            board.context.roundRect(this.center[0]-this.sideLength*0.7/2,this.center[1]-this.sideLength*0.7/2,this.sideLength*0.7, this.sideLength*0.7,1/40*cHeight);
+            board.context.fill();
+            board.context.globalAlpha = 0;
+            board.context.stroke();
+            board.context.globalAlpha = 1;
+          }
           if(this.animating){
             board.context.fillStyle = "#334155";
             if(frameCount >= this.animEnd){
               this.animating = false;
             }
-            if(this.animEnd-frameCount>=75){
+            if(this.animEnd-frameCount>=37){
               this.ty+=((this.y+(1/200)*cHeight)-this.ty)/2;
             }
-            else if(this.animEnd-frameCount>=50){
+            else if(this.animEnd-frameCount>=25){
               //get biggg
               this.tx-=(1/2500)*cHeight;
               this.ty-=(1/2500)*cHeight;
@@ -257,18 +279,12 @@ Time spent: x
         }//display
 
         open(){
-          if(clicksAllowed>=1){
-            this.state = 2;
-            clicksAllowed--;
-          }
-          else{
-            this.state = 1;
-          }
+          
 
           this.tx = this.x;
           this.ty = this.y;
           this.animating = true;
-          this.animEnd = frameCount+100;
+          this.animEnd = frameCount+50;
         }//open
       }//Square class
 
@@ -281,6 +297,7 @@ Time spent: x
           for(let n = 0;n<grid[i].length;n++){
             let sq = grid[i][n];
             if(
+              ending == false &&
               sq.clickable == true &&
               mouseX > sq.x &&
               mouseX < sq.x + sq.sideLength &&
@@ -313,9 +330,18 @@ Time spent: x
                 mouseY < sq.y + sq.sideLength
               ){
                 sq.clickable = false;
+                if(clicksAllowed>=1){
+                  sq.state = 2;
+                  clicksAllowed--;
+                }
+                else{
+                  sq.state = 1;
+                }
                 sq.open();
                 if (sq.state==1){
                   endGame(false);
+                }
+                if(sq.state==2){
                 }
               }
             }
@@ -344,6 +370,47 @@ Time spent: x
 
       function endGame(win){
         playing = false;
+        ending = true;
+        let minesLeft = mines;
+        if(win==false){
+          minesLeft-=1;
+        }
+        // //wait here
+        // for(let i = 0;i<grid.length;i++){
+        //   for(let n = 0;n<grid[i].length;n++){
+        //     if(grid[i][n].state==4 || grid[i][n].state==5 ){
+        //       grid[i][n].open();
+        //     }
+        //   }
+        // }
+
+        setTimeout(() => {
+          for(let i = 0; i < grid.length; i++){
+             for(let n = 0; n < grid[i].length; n++){
+                if(grid[i][n].state == 3){
+                    grid[i][n].open();
+                }
+              }
+            }
+        }, 1500);
+        setTimeout(() => {
+          for(let i = 0;i<grid.length;i++){
+            for(let n = 0;n<grid[i].length;n++){
+             if(grid[i][n].state==3){
+              grid[i][n].state=4;
+              }
+            }
+          }
+          while(minesLeft>0){
+            let randomR = getRandomInt(0,numRows);
+            let randomC = getRandomInt(0,numCols);
+            if(grid[randomR][randomC].state==4){
+              grid[randomR][randomC].state = 5;
+              minesLeft-=1;
+            }
+          }
+        }, 1600);
+        ending = false;
       }//endGame
 
       function genNormalDistribution(mean, stdDev) {
@@ -362,6 +429,12 @@ Time spent: x
 
         return Math.pow(numerator/denominator, 0.5);
       }//hypergeometricDistributionToFindStandardDistributionOfMines
+
+      function getRandomInt(min, max) {
+        const minCeiled = Math.ceil(min);
+        const maxFloored = Math.floor(max);
+        return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+      }//getRandomInt gets random integer with exclusive max and inclusive minimum
     </script>
   </body>
 </html>
