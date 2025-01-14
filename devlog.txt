@@ -55,3 +55,5 @@ alexL - 2025-1-11 21:30
 stanleyH - 2025-1-12 22:00
 - finished blackjack animations, displays score now as well
 
+stanleyH - 2025-1-13 22:37
+- saving user data in databases fixing bugs

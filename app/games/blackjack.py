@@ -7,6 +7,7 @@
 
 from flask import session
 import random
+from database import get_user, update_balance
 
 def get_card(num):
     card_value = num % 13 + 1
@@ -37,7 +38,9 @@ def calculate_hand_value(cards):
     
     return total
 
-def initialize_game():
+def initialize_game(bet):
+    session['bet'] = bet
+    session['balance'] -= bet
     session['deck'] = [i for i in range(52)]
     session['player_hand'] = random.sample(session['deck'], 2)
     for card in session['player_hand']:
@@ -80,12 +83,14 @@ def determine_winner():
         outcome = 'lose'
     
     if 'username' in session:
-        user_info = database.return_user(session['username'])
+        user_info = get_user(session['username'])
         user_id = user_info['user_id']
-        if outcome in ['win', 'blackjack']:
-            database.update_balance(user_id, "blackjack", +50)
-        elif outcome in ['lose', 'bust']:
-            database.update_balance(user_id, "blackjack", -50)
+        if outcome == 'win':
+            update_balance(user_id, "blackjack", session['bet'])
+        elif outcome == 'blackjack':
+            update_balance(user_id, "blackjack", session['bet']*1.5)
+        else:
+            update_balance(user_id, "blackjack", -session['bet'])
     
     return outcome
 

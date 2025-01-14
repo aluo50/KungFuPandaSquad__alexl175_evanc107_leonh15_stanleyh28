@@ -91,7 +91,7 @@ def login_user():
             flash('Invalid username or password!', 'error')
 
 
-def return_user(user):
+def get_user(user):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM users WHERE username=?", (user,))
@@ -125,13 +125,13 @@ def load_blackjack(user_id):
     conn = get_db_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM blackjack_sessions WHERE game_id=?", (game_id,))
+    cur.execute("SELECT * FROM blackjack_in_progress WHERE user_id=?", (user_id,))
     row = cur.fetchone()
     conn.close()
 
     if row:
         return{
-            'bet': row['bet'],
+            'bet': row['bet_amount'],
             'player_hand': json.loads(row['player_hand']),
             'dealer_hand': json.loads(row['dealer_hand'])
         }
@@ -140,9 +140,18 @@ def load_blackjack(user_id):
 # update blackjack_sessions row with latest game state
 def save_blackjack(user_id, bet, player_hand, dealer_hand):
     conn = get_db_connection()
-    cur= conn.cursor()
+    cur = conn.cursor()
 
-    cur.execute(" UPDATE blackjack_in_progress SET bet_amount=?, player_hand=?, dealer_hand=? WHERE user_id=?", (bet, json.dumps(player_hand), json.dumps(dealer_hand), user_id))
+    cur.execute("UPDATE blackjack_in_progress SET bet_amount=?, player_hand=?, dealer_hand=? WHERE user_id=?", (bet, json.dumps(player_hand), json.dumps(dealer_hand), user_id))
 
     conn.commit()
     conn.close()
+
+    
+def add_blackjack_user(user_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO blackjack_in_progress (user_id, bet_amount, player_hand, dealer_hand) VALUES (?, ?, ?, ?)", (user_id, 0, json.dumps([]), json.dumps([])))
+    conn.commit()
+    conn.close()
+    
