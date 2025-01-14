@@ -43,7 +43,7 @@ Time spent: x
     <script>
 
       //logistic chaos 
-      let logisticR = 3.9;
+      let logisticR = 4.0;
 
       function logisticMap(r,x){
         return r*x*(1-x);
@@ -60,6 +60,21 @@ Time spent: x
         ball.speed[0] = newNormalized * 2 * maxSpeed - maxSpeed;
       }
       
+    function rotateVector(vec, theta) {
+      const cosT = Math.cos(theta);
+      const sinT = Math.sin(theta);
+
+      const x = vec[0] * cosT - vec[1] * sinT;
+      const y = vec[0] * sinT + vec[1] * cosT;
+
+      return [x, y];
+    }
+
+    function randomAngle(maxDeg) {
+      const maxRad = (maxDeg * Math.PI) / 180;
+      return (Math.random() * 2 - 1) * maxRad; 
+    }
+
       //financials
       var creditcardinfo;
       var balance;
@@ -357,6 +372,9 @@ Time spent: x
               let bForce = [direction[0]*this.bounce, direction[1]*this.bounce];
 
               applyLogisticChaos(balls[i]);
+
+              const angle = randomAngle(15); // tweak as needed
+              bForce = rotateVector(bForce, angle);
 
               balls[i].speed = [balls[i].speed[0]*Math.pow(-1, Math.round(getRandomInt(0,2))),0]
               balls[i].accel = [0,0];
