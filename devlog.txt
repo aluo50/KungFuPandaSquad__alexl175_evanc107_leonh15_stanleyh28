@@ -57,3 +57,10 @@ stanleyH - 2025-1-12 22:00
 
 stanleyH - 2025-1-13 22:37
 - saving user data in databases fixing bugs
+
+evanC - 2025-1-13 22:58
+- changes to mines.html
+   - mines game works
+   - alotted guesses are done with a rigged normal distribution for our business model
+   - animations for hovering and clicking based on frame counts
+   - no balance altering or ui yet
