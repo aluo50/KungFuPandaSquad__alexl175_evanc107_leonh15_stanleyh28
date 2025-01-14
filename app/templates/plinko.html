@@ -41,6 +41,25 @@ Time spent: x
   </head>
   <body onload = "startGame()">
     <script>
+
+      //logistic chaos 
+      let logisticR = 3.9;
+
+      function logisticMap(r,x){
+        return r*x*(1-x);
+      }
+      
+      // takes ball's horizontal speed and normalizes it, then applies logistic formula to get a new 0-1 value
+      function applyLogisticChaos(ball){
+        let maxSpeed = 10;
+        let normalized = (ball.speed[0]+maxSpeed) / (2*maxSpeed);
+        if (normalized < 0) normalized = 0;
+        if (normalized > 1) normalized = 1;
+
+        let newNormalized = logisticMap(logisticR, normalized);
+        ball.speed[0] = newNormalized * 2 * maxSpeed - maxSpeed;
+      }
+      
       //financials
       var creditcardinfo;
       var balance;
@@ -287,19 +306,26 @@ Time spent: x
 
         bounceEm() {
           for(let i = 0; i < balls.length; i++){
-            if(Math.abs(dist(this.pos[0],this.pos[1],balls[i].pos[0],balls[i].pos[1])-(pegSize+ballSize)) <= 1){
-              let xDiff = Math.abs(this.pos[0]-balls[i].pos[0]);//a
-              let yDiff = Math.abs(this.pos[1]-balls[i].pos[1]);//b
-              let hyp = dist(this.pos[0],this.pos[1],balls[i].pos[0],balls[i].pos[1]);//hypotenuse
+            let distance = dist(this.pos[0], this.pos[1], balls[i].pos[0],balls[i].pos[1]);
+            let sumR = pegSize + ballSize;
+            // if ball is overlapping with peg
+            if(distance < sumR){
+              // push it out so it doesn't phase through
+              let overlap = sumR - distance;
+              let dx = balls[i].pos[0] - this.pos[0];
+              let dy = balls[i].pos[1] - this.pos[1];
+              let len = distance;
+              if (len!==0){
+                dx /= len;
+                dy /= len;
+                balls[i].pos[0] += dx * overlap;
+                balls[i].pos[1] += dy * overlap;
+              }
 
-              let angle = radians2degrees(Math.atan2(yDiff, xDiff));//angle in degrees
+              let direction = [dx,dy];
+              let bForce = [direction[0]*this.bounce, direction[1]*this.bounce];
 
-
-
-              // let bForce = [-hyp*Math.cos(angle)*bouncyness,hyp*Math.sin(angle)*bouncyness];
-              let direction = [(balls[i].pos[0] - this.pos[0])/hyp, (balls[i].pos[1] - this.pos[1])/hyp];
-              let bForce = [direction[0]*bouncyness, direction[1]*bouncyness];
-
+              applyLogisticChaos(balls[i]);
 
               balls[i].speed = [balls[i].speed[0]*Math.pow(-1, Math.round(getRandomInt(0,2))),0]
               balls[i].accel = [0,0];
