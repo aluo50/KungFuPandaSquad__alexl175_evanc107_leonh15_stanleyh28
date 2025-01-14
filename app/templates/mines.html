@@ -1,0 +1,291 @@
+<!--
+Alex Luo, Evan Chan, Leon Huang, Stanley Hoo
+KungFuPandaSquad
+SoftDev
+P02: Makers Makin' It, Act I
+2025-1-9
+Time spent: x
+-->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>mines</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+      canvas {
+        border:1px solid #ffffff;
+        background-color: #ffffff;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+      }
+    </style>
+  </head>
+  <body onload = "startGame()">
+    <script>
+      //financials
+      var creditcardinfo;
+      var balance;
+
+      //sizing
+      var browWidth;
+      var browHeight;
+      var cWidth;
+      var cHeight;
+
+      //pre game
+      var numRows;
+      var numCols;
+      var grid;
+      var mines; //1 to (numRows*numCols)-1
+      var clicksAllowed;
+
+      //in game
+      var playing;
+
+      function startGame(){
+        // balance = {{bal}};
+        balance = 100000;
+
+        resizeCanvas();
+
+        playing = false;
+        numRows = 5;
+        numCols = numRows;
+        mines = 3;
+
+        resetGame();
+
+        board.start();
+      }//startGame
+
+      function resetGame(){
+        createGrid();
+      }//startGame
+
+      var board = {
+        canvas : document.createElement("canvas"),
+        start : function() {
+          this.canvas.width = cWidth;
+          this.canvas.height = cHeight;
+          this.context = this.canvas.getContext("2d");
+          document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+          this.frameNo = 0;
+          this.interval = setInterval(updateGameArea, 20);
+          },
+        clear : function() {
+          this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+      }//board
+
+      function updateGameArea(){
+        resizeCanvas();
+
+        displayEverything();
+      }//updateGameArea
+
+      function displayEverything(){
+        //makes the rounded rectangular canvas
+        board.clear();
+        board.frameNo+=1;
+        board.context.fillStyle = "#0f1728";
+        board.context.beginPath();
+        board.context.roundRect(0,0,cWidth,cHeight,1/40*cHeight);
+        board.context.fill();
+        board.context.globalAlpha = 0;
+        board.context.stroke();
+        board.context.globalAlpha = 1;
+
+        displayGrid();
+        displayUI();
+      }//displayEverything
+
+      function displayUI(){
+        //grey box
+        board.frameNo+=1;
+        board.context.fillStyle = "#334155";
+        board.context.beginPath();
+        board.context.roundRect(0,0,cWidth/3,cHeight,1/40*cHeight);
+        board.context.rect(cWidth/6,0,cWidth/6,cHeight)
+        board.context.fill();
+        board.context.globalAlpha = 0;
+        board.context.stroke();
+        board.context.globalAlpha = 1;
+      }//displayUI
+
+      function displayGrid(){
+        for(let i = 0;i<numRows;i++){
+          for(let n = 0;n<numCols;n++){
+            grid[i][n].display();
+          }
+        }
+      }//displayGrid
+
+      function createGrid(){
+        grid = [];
+        let pads = (1/30)*cHeight;
+        let hBounds = [cWidth*(1/3), cWidth];
+        let sidePads = ((hBounds[1]-hBounds[0])-cHeight)/2;
+        let sideLength = ((hBounds[1]-hBounds[0])-(sidePads*2)-(pads*6))/numRows;
+
+        let startXY = [hBounds[0]+(sidePads*1.25),-(1/100)*cHeight];
+        for(let i = 0;i<numRows;i++){
+          grid[i] = [];
+          for(let n = 0;n<numCols;n++){
+            grid[i][n] = new Square(startXY[0]+i*(sideLength+pads), startXY[1]+pads+n*(sideLength+pads), sideLength);
+          }
+        }
+      }//createGrid
+
+      class Square {
+        constructor(px, py, sl){
+          this.x = px;
+          this.y = py;
+          this.tx = this.x;
+          this.ty = this.y;
+          this.state = 3;//1=explode,2=clean,3=unflipped
+          this.sideLength = sl;
+          this.center = [this.x-this.sideLength/2, this.y-this.sideLength/2];
+          this.animEnd;
+          this.clickable = true;
+          this.unflippedColor = "#495e7a";
+          this.newColor;
+          this.hovering = false;
+        }//constructor
+
+        display(){
+          if(this.hovering){
+            if(this.y-this.ty<=(1/100)*cHeight){//going up
+              this.ty-=((this.y+(1/100)*cHeight)-this.ty)/2;
+              this.newColor = lerpColor(stringToColor("#5c779c"), stringToColor("#eeeeee"), (this.y-this.ty)/((1/100)*cHeight));
+            }
+          }
+          else{
+            if(this.ty<=this.y){//going back down
+              this.ty-=(this.ty-this.y)/2;
+              this.newColor = lerpColor(stringToColor("#5c779c"), stringToColor("#eeeeee"), (this.y-this.ty)/((1/100)*cHeight));
+            }
+          }
+          if(this.state == 1){
+            board.context.fillStyle = "#ad3737";
+            board.context.beginPath();
+            board.context.roundRect(this.x,this.y,this.sideLength,this.sideLength+(1/100*cHeight),1/40*cHeight);
+            board.context.fill();
+            board.context.globalAlpha = 0;
+            board.context.stroke();
+            board.context.globalAlpha = 1;
+            board.context.fillStyle = "#fa5050";
+            board.context.beginPath();
+            board.context.roundRect(this.x,this.y,this.sideLength,this.sideLength,1/40*cHeight);
+            board.context.fill();
+            board.context.globalAlpha = 0;
+            board.context.stroke();
+            board.context.globalAlpha = 1;
+          }
+          else if(this.state == 2){
+            board.context.fillStyle = "#2dad34";
+            board.context.beginPath();
+            board.context.roundRect(this.x,this.y,this.sideLength,this.sideLength+(1/100*cHeight),1/40*cHeight);
+            board.context.fill();
+            board.context.globalAlpha = 0;
+            board.context.stroke();
+            board.context.globalAlpha = 1;
+            board.context.fillStyle = "#3deb46";
+            board.context.beginPath();
+            board.context.roundRect(this.x,this.y,this.sideLength,this.sideLength,1/40*cHeight);
+            board.context.fill();
+            board.context.globalAlpha = 0;
+            board.context.stroke();
+            board.context.globalAlpha = 1;
+          }
+          else if(this.state == 3){
+            board.context.fillStyle = "#334155";
+            board.context.beginPath();
+            board.context.roundRect(this.tx,this.ty,this.sideLength,this.sideLength+(1/100*cHeight),1/40*cHeight);
+            board.context.fill();
+            board.context.globalAlpha = 0;
+            board.context.stroke();
+            board.context.globalAlpha = 1;
+            board.context.fillStyle = this.newColor;
+            board.context.beginPath();
+            board.context.roundRect(this.tx,this.ty,this.sideLength,this.sideLength,1/40*cHeight);
+            board.context.fill();
+            board.context.globalAlpha = 0;
+            board.context.stroke();
+            board.context.globalAlpha = 1;
+          }
+        }//display
+
+        open(){
+
+        }//open
+      }//Square class
+
+      function flip(r, c){
+
+      }//flip
+
+      board.canvas.addEventListener('mousemove', (event) => {
+        const rCanvas = board.canvas.getBoundingClientRect();
+        const mouseX = event.clientX - rCanvas.left;
+        const mouseY = event.clientY - rCanvas.top;
+
+        for(let i = 0;i<grid.length;i++){
+          for(let n = 0;n<grid[i].length;n++){
+            let sq = grid[i][n];
+            if(
+              sq.clickable == true &&
+              mouseX > sq.x &&
+              mouseX < sq.x + sq.sideLength &&
+              mouseY > sq.y &&
+              mouseY < sq.y + sq.sideLength
+            ){
+              sq.hovering = true;
+            }
+            else{
+              sq.hovering = false;
+            }
+          }
+        }
+      });
+
+      function resizeCanvas(){
+        browWidth = window.innerWidth;
+        browHeight = window.innerHeight;
+        cWidth = (1440/2160)*browWidth;
+        cHeight = (800/1440)*cWidth;
+      }//resizeCanvas
+
+      function lerp(start, end, amt) {
+        return start * (1 - amt) + end * amt;
+      }//lerp
+
+      function lerpColor(color1, color2, amt) {
+        let r = lerp(color1[0], color2[0], amt);
+        let g = lerp(color1[1], color2[1], amt);
+        let b = lerp(color1[2], color2[2], amt);
+
+        return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+      }//lerpColor this is a lot of work...from plinko.html
+
+      function stringToColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        let r = (hash >> 16) & 0xFF;
+        let g = (hash >> 8) & 0xFF;
+        let b = hash & 0xFF;
+        return [r, g, b]; // Return the RGB array
+      }
+
+    </script>
+  </body>
+</html>
+
