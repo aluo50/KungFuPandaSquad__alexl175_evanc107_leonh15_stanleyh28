@@ -21,7 +21,7 @@ Time spent: x -->
   <!-- Our Blackjack logic -->
   <script src="{{ url_for('static', filename='js/blackjack.js') }}"></script>
 </head>
-<body>
+<body class="{{ body_class }}">
   <header>
         <!-- Allows flashing messages in the html -->
         {% with messages = get_flashed_messages(with_categories=true) %}

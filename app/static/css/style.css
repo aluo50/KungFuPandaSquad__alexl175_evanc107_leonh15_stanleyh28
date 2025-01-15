@@ -5,7 +5,7 @@ body {
   height: 100%;
 }
 
-body {
+.blackjack-body {
   background: url("/static/images/blackjack.jpg") no-repeat center center fixed;
   background-size: cover;
   overflow: hidden; 
