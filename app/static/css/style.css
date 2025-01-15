@@ -5,7 +5,7 @@ body {
   height: 100%;
 }
 
-body {
+.blackjack-body {
   background: url("/static/images/blackjack.jpg") no-repeat center center fixed;
   background-size: cover;
   overflow: hidden; 
@@ -184,4 +184,117 @@ color: #155724;
       opacity: 0; /* Fully transparent */
       margin-top: -7%; /* Move the message up so it doesn't block UI*/
   }
+}
+
+.home-title,
+.home-subtitle,
+.home-paragraph,
+.login-register-container{
+  text-align:center;
+}
+
+.home-title{
+  margin:20px 0 10px 0;
+  font-size:2rem;
+}
+
+.home-subtitle{
+  margin:10px 0;
+}
+
+.home-paragraph{
+  margin:10;
+}
+
+.button-group-home{
+  display:flex;
+  justify-content: center;
+  gap:20px;
+  margin-top:40px;
+}
+
+.button-group-home a button.btn-home{
+  padding: 20px;
+  font-size:1.2rem;
+  cursor:pointer;
+}
+
+.logout-container{
+  text-align:center;
+  margin-top:40px;
+}
+
+.logout-container .btn-logout{
+  padding:10px 20px;
+  cursor: pointer;
+}
+
+.login-register-container .btn-login-register{
+  padding:10px 20px;
+  cursor:pointer;
+}
+
+.player-info {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 1.2rem;
+    text-align: right; 
+}
+
+.welcome-message {
+    margin-bottom: 5px; 
+}
+
+.signout-btn {
+  background-color: #dc3545; 
+  color: white;
+  padding: 5px 10px;
+  text-decoration: none;
+  margin-left: 10px;
+  border-radius: 4px;
+}
+
+.signout-btn:hover {
+  background-color: #bd2130;
+}
+
+.balance-info {
+    display: flex;
+    align-items: center;
+    gap: 5px; 
+}
+
+.coin-icon {
+    width: 24px; 
+    height: 24px;
+}
+
+/* Coin animation container */
+#coin-animation-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.coin-animation {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    background: url('/static/images/coin.png') no-repeat center center;
+    background-size: contain;
+    opacity: 1;
+    transition: transform 1.5s ease-in-out, opacity 1.5s ease-in-out;
+}
+
+.coin-disappear {
+    opacity: 0;
+}
+
+#balance {
+    font-size: 1.5rem;
+    font-weight: bold;
 }

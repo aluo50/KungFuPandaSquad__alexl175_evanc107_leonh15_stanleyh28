@@ -48,7 +48,7 @@ def login():
         return redirect(url_for("login"))
     return render_template("login.html")
 
-@app.route("/logout", methods=["POST"])
+@app.route("/logout", methods=["GET", "POST"])
 def logout():
     if "username" in session:
         user = session.pop("username")
@@ -71,11 +71,13 @@ def play_blackjack():
         user_info = get_user(session["username"])
         user_id = user_info['user_id']
 
+        bet = 100 # fixed bet for now
+
         result = load_blackjack(user_id)
 
         if result != None:
             session['bet'] = result['bet']
-            session['balance'] -= session['bet']
+            session['balance'] = get_user(session['username'])['balance'] - session['bet']
             player_hand = result['player_hand']
             dealer_hand = result['dealer_hand']
             session['player_hand'] = player_hand
@@ -101,12 +103,15 @@ def play_blackjack():
     # Retrieve the current hands from session
     player_cards = session.get("player_hand", [])
     dealer_cards = session.get("dealer_hand", [])
-    
+      
     return render_template(
         "blackjack.html",
+        body_class="blackjack-body",
         player_cards=player_cards,
         dealer_cards=dealer_cards,
-        game_over=game_over
+        game_over=game_over,
+        username=session["username"],
+        balance=session["balance"]
     )
 
 # hit
@@ -140,7 +145,7 @@ def stand():
     result = determine_winner()
     
     user_id = get_user(session['username'])['user_id']
-    
+
     save_blackjack(user_id, 100, session['player_hand'],session['dealer_hand'], 1)
 
     return jsonify({
@@ -161,7 +166,8 @@ def double_down_route():
         session['balance'] -= session['bet']
         session['bet'] *= 2
         double_down()
-        result = determine_winner()
+        print("double down")
+#         result = determine_winner()
         new_card = session["player_hand"][-1]
         
         user_id = get_user(session['username'])['user_id']
@@ -169,8 +175,8 @@ def double_down_route():
         save_blackjack(user_id, session['bet'], session['player_hand'],session['dealer_hand'], 1)
 
         return jsonify({
-            "new_card": new_card,
-            "result": result
+            "new_card": new_card
+#             "result": result
         })
 
 # resets blackjack, starts new round
@@ -193,7 +199,43 @@ def plinko():
     if "username" not in session:
         flash("Login to play Plinko!", "error")
         return redirect(url_for("login"))
-    return render_template("plinko.html")
+
+    user_info = get_user(session["username"])
+    balance = user_info["balance"]
+    session["balance"] = balance 
+
+    return render_template("plinko.html",username=session["username"], balance=balance)
+    
+@app.route("/plinko_drop", methods=["POST"])
+def plinko_drop():
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+
+    user_id = get_user(session['username'])['user_id']
+    bet_amount = 50
+    new_balance = update_balance(user_id, "plinko", -bet_amount)
+    session["balance"] = new_balance
+
+    return jsonify({"message": "dropped ball", "balance": new_balance})
+
+@app.route("/plinko_result", methods=["POST"])
+def plinko_result():
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+
+    data=request.json
+    multipler = data.get("multiplier", 1.0)
+
+    user_id = get_user(session['username'])['user_id']
+
+    bet_amount = 50
+    winnings = int(bet_amount * float(multipler))
+
+    new_balance = update_balance(user_id,"plinko", winnings)
+    session["balance"] = new_balance
+
+    return jsonify({"balance":new_balance, "winnings":winnings})
+        
 
 if __name__ == "__main__":
     app.run(debug=True)

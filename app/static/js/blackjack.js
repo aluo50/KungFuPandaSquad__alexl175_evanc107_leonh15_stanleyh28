@@ -275,8 +275,8 @@ function doubleDown() {
         dealCard("player", "face-up", getCardImage(data.new_card));
         updateScore(data.new_card, "player");
         // If player busts, just display result and dealer doesn't need to draw
-        if (data.result === 'bust') {
-            setTimeout(() => showEndScreen(data.result), 1200);
+        if (calculateHandValue(initialPlayerCards) > 21) {
+            setTimeout(() => showEndScreen('bust'), 1200);
         } else {
             setTimeout(() => {
               stand()
@@ -344,3 +344,70 @@ function playAgain() {
     }
   });
 }
+
+function animateBalanceChange(amount) {
+    const balanceElement = document.getElementById("balance");
+    let currentBalance = parseInt(balanceElement.innerText);
+    let targetBalance = currentBalance + amount;
+    // Limit increments and animated coins
+    let increment = amount / 20;
+    let coinsToAnimate = Math.min(Math.abs(amount), 100);
+    const coinContainer = document.createElement('div');
+    coinContainer.id = 'coin-animation-container';
+    document.body.appendChild(coinContainer);
+
+    // Get starting pos
+    const balanceOffset = balanceElement.getBoundingClientRect();
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    // Create and animate coins
+    for (let i = 0; i < coinsToAnimate; i++) {
+        setTimeout(() => {
+            const coin = document.createElement('div');
+            coin.classList.add('coin-animation');
+            coin.style.position = "fixed";
+            coin.style.backgroundImage = "url('/static/images/coin.png')";
+            document.body.appendChild(coin);
+
+            if (amount > 0) {
+                coin.style.left = `${centerX}px`;
+                coin.style.top = `${centerY}px`;
+            } else {
+                coin.style.left = `${balanceOffset.left}px`;
+                coin.style.top = `${balanceOffset.top}px`;
+            }
+
+            setTimeout(() => {
+                coin.style.transition = "transform 1.5s ease-out, opacity 1s ease-out";
+                if (amount > 0) {
+                    // Move coins towards the balance
+                    coin.style.transform = `translate(${balanceOffset.left - centerX}px, ${balanceOffset.top - centerY}px)`;
+                } else {
+                    // Move coins from balance to the center
+                    coin.style.transform = `translate(${centerX - balanceOffset.left}px, ${centerY - balanceOffset.top}px)`;
+                }
+                coin.style.opacity = "0";
+            }, 50);
+
+            setTimeout(() => {
+                coin.remove();
+            }, 1600);
+        }, i * (1000 / coinsToAnimate));
+    }
+
+    // Counter animation for balance change
+    setTimeout(() => {
+        let counter = setInterval(() => {
+            if ((increment > 0 && currentBalance < targetBalance) ||
+                (increment < 0 && currentBalance > targetBalance)) {
+                currentBalance += increment;
+                balanceElement.innerText = Math.round(currentBalance);
+            } else {
+                clearInterval(counter);
+                balanceElement.innerText = targetBalance;
+            }
+        }, 50);
+    }, 1200);
+}
+

@@ -64,3 +64,7 @@ evanC - 2025-1-13 22:58
    - alotted guesses are done with a rigged normal distribution for our business model
    - animations for hovering and clicking based on frame counts
    - no balance altering or ui yet
+
+evanC - 2025-1-14 10:36
+- changes to mines.html
+   - mine game has ending transitions and animations

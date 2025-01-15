@@ -17,12 +17,13 @@ Time spent: x -->
     var initialPlayerCards = {{ player_cards | tojson }};
     var initialDealerCards = {{ dealer_cards | tojson }};
     var game_over = {% if game_over == 1 %} true {% else %} false {% endif %};
+    var balance = {{ balance | tojson }};
   </script>
 
   <!-- Our Blackjack logic -->
   <script src="{{ url_for('static', filename='js/blackjack.js') }}"></script>
 </head>
-<body>
+<body class="{{ body_class }}">
   <header>
         <!-- Allows flashing messages in the html -->
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -34,6 +35,17 @@ Time spent: x -->
                 </div>
             {% endif %}
         {% endwith %}
+      {% if session['username'] %}
+        <div class="player-info">
+            <div class="welcome-message">
+                Welcome, <span id="username">{{ username }}</span>!
+                <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
+            </div>
+            <div class="balance-info">
+                Balance: <span id="balance">{{ balance }}</span><img src="{{ url_for('static', filename='images/coin.png') }}" alt="Coin Icon" class="coin-icon">
+            </div>
+        </div>
+      {% endif %}
     </header>
 
   <!-- Main table area -->

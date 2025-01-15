@@ -68,6 +68,7 @@ def double_down():
     session.modified = True
 
 def determine_winner():
+    print("determine")
     player_value = calculate_hand_value(session['player_hand'])
     dealer_value = calculate_hand_value(session['dealer_hand'])
 
@@ -92,12 +93,10 @@ def determine_winner():
         elif outcome == 'blackjack':
             session['balance'] += session['bet'] * 2.5
             update_balance(user_id, "blackjack", session['bet']*1.5)
-        elif outcome == 'loss' or outcome == 'bust':
+        elif outcome == 'lose' or outcome == 'bust':
             update_balance(user_id, "blackjack", -session['bet'])
         else:
             session['balance'] += session['bet']
             update_balance(user_id, "blackjack", 0)
     
     return outcome
-
-    

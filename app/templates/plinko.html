@@ -42,13 +42,15 @@ Time spent: x
   <body onload = "startGame()">
     <script>
 
-      //logistic chaos 
+      //logistic chaos
       let logisticR = 4.0;
 
       function logisticMap(r,x){
         return r*x*(1-x);
       }
-      
+
+      // we might remove the logistic chaos and implement a more fine normal distribution
+
       // takes ball's horizontal speed and normalizes it, then applies logistic formula to get a new 0-1 value
       function applyLogisticChaos(ball){
         let maxSpeed = 10;
@@ -59,7 +61,7 @@ Time spent: x
         let newNormalized = logisticMap(logisticR, normalized);
         ball.speed[0] = newNormalized * 2 * maxSpeed - maxSpeed;
       }
-      
+
     function rotateVector(vec, theta) {
       const cosT = Math.cos(theta);
       const sinT = Math.sin(theta);
@@ -72,7 +74,7 @@ Time spent: x
 
     function randomAngle(maxDeg) {
       const maxRad = (maxDeg * Math.PI) / 180;
-      return (Math.random() * 2 - 1) * maxRad; 
+      return (Math.random() * 2 - 1) * maxRad;
     }
 
       //financials
@@ -138,7 +140,7 @@ Time spent: x
         bouncyness = 1.15;
 
         running = false;
-        
+
         createGrid();
         board.start();
       }//startGame
@@ -310,7 +312,7 @@ Time spent: x
       function createGrid(){
         let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
         let upandbot = [(1/10)*cHeight,(7/8)*cHeight];//bottom and top bounds
-        
+
         grid = [];
         grid.length = rows;
         let yPadding = (upandbot[1]-upandbot[0])/(rows-1);
@@ -422,7 +424,7 @@ Time spent: x
           const ctx = board.context;
           ctx.fillStyle = "#ffffff";
           ctx.beginPath();
-          ctx.arc(this.pos[0], this.pos[1], this.size, 0, 2 * Math.PI);
+          ctx.arc(this.pos[0], this.pos[1], this.size*1.25, 0, 2 * Math.PI);
           ctx.fill();
           ctx.strokeStyle = "#ffffff";
           ctx.stroke();
@@ -501,9 +503,17 @@ Time spent: x
               spawnBall(1);
             }
           }
+        
 
-
+        }  
+      board.canvas.addEventListener('dropdown', function(event){
+        var side2side = [0,(5.16)*cWidth]
+        var posMouse = getMousePos(board.canvas, event);
+        if (1==1){
+            if((posMouse[0]))
         }
+    
+    }
 
         console.log("left click at ("+posMouse[0]+", "+posMouse[1]+")");
       });
@@ -518,7 +528,7 @@ Time spent: x
       </ul>
     </div>
 
-    <div class="btn-group" style="margin-left: 1rem;">
+    <div class="btn-group" style="margin-left: 1rem;"  >
       <button
         type="button"
         class="btn btn-secondary dropdown-toggle"
