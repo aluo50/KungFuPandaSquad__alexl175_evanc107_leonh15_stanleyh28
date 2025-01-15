@@ -14,6 +14,7 @@ Time spent: x
         <title>Steak Co. Home</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     </head>
+    <body>
 
     <header>
         <!-- Allows flashing messages in the html -->
@@ -27,20 +28,29 @@ Time spent: x
             {% endif %}
         {% endwith %}
     </header>
-    <div>
-        <h1>Steak Co.</h1>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li><a href="{{ url_for('play_blackjack') }}">Blackjack</a></li>
-                <li><a href="{{ url_for('plinko') }}">Plinko</a></li>
-            </ul>
-        </nav>
-    </div>
+    
+    <h1>Steak Co.</h1>
+        
 
     {% if username %}
-        <h2>Welcome back, {{ username }}!</h2>
-        <p>Your current balance is: <strong>{{ balance }}</strong></p>
+        <h2 class="home-subtitle">Welcome back, {{ username }}!</h2>
+        <p class="home-paragraph">Your current balance is: <strong>{{ balance }}</strong></p>
+
+        <div class="button-group-home">
+            <a href="{{ url_for('play_blackjack') }}">
+                <button class="btn-home">Play Blackjack</button>
+            </a>
+            <a href="{{ url_for('plinko') }}">
+                <button class="btn-home">Play Plinko</button>
+            </a>
+        </div>
+
+        <div class="logout-container">
+            <form action="{{ url_for('logout') }}" method="POST">
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+        <!--
         {% if saved_games %}
             <h3>Your active games:</h3>
             {% for game in saved_games %}
@@ -59,11 +69,15 @@ Time spent: x
         <form action="{{ url_for('logout') }}" method="POST">
             <button type="submit">Logout</button>
         </form>
+        -->
     {% else %}
-        <h2>Welcome to Steak Co.</h2>
-        <p>Please login or register to play.</p>
-        <a href="{{ url_for('login') }}">Go to Login</a>
+        <h2 class="home-subtitle">Welcome to Steak Co.</h2>
+        <p class="home-paragraph">Please login or register to play.</p>
+        <div class="login-register-container">
+            <a href="{{ url_for('login') }}"><button class="btn-login-register">Go to Login</button></a>
+        </div>
+        
     {% endif %}
-    
+    </body>
 </html>
 
