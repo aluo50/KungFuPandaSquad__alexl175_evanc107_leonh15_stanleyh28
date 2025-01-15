@@ -136,7 +136,7 @@ Time spent: x
         rows = 16;
         risk = "low";
         createGrid();
-        gravity = [0,0.1];
+        gravity = [0,0.35];
         bouncyness = 1.15;
 
         running = false;
@@ -384,7 +384,7 @@ Time spent: x
               }
 
               let direction = [dx,dy];
-              let bForce = [direction[0]*this.bounce, direction[1]*this.bounce];
+              let bForce = [direction[0]*this.bounce, direction[1]*this.bounce*1.5];
 
               applyLogisticChaos(balls[i]);
 

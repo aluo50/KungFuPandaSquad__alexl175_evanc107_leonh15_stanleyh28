@@ -131,6 +131,7 @@ body {
 #player-area h2 {
   margin: 0; 
   padding: 5px;
+  color: #FFFFFF;
 }
 
 /* Style flash messages */
@@ -240,6 +241,7 @@ color: #155724;
     right: 20px;
     font-size: 1.2rem;
     text-align: right; 
+    color: #FFFFFF;
 }
 
 .welcome-message {
