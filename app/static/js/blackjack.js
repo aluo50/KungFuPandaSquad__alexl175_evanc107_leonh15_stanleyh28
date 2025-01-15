@@ -247,7 +247,7 @@ function stand(cards=[]) {
         }, 600);
 
         // show result
-        setTimeout(() => showEndScreen(data.result), 200 + 600 * data.dealer_hand.length);
+        setTimeout(() => showEndScreen(data.result, data.amount), 200 + 600 * data.dealer_hand.length);
       });
   } else {
     // Flip the second card dealer face down card
@@ -262,7 +262,7 @@ function stand(cards=[]) {
 
         let result = determineGameResult(dealer_score, player_score);
         
-        showEndScreen(result);
+        showEndScreen(result, data.amount);
     }, 400 + 600 * cards.length);
   }
 }
@@ -272,6 +272,7 @@ function doubleDown() {
   // Similar to hit
   $.post("/double_down", function (data) {
     if (data.new_card != false) {
+        animateBalanceChange(data.amount);
         dealCard("player", "face-up", getCardImage(data.new_card));
         updateScore(data.new_card, "player");
         // If player busts, just display result and dealer doesn't need to draw
@@ -311,13 +312,22 @@ function animateDealerDraws(drawnCards) {
 }
 
 // End Screen
-function showEndScreen(resultText) {
+function showEndScreen(resultText, amount=0) {
   let message = "";
-  if (resultText === "win") message = "You Win!";
-  else if (resultText === "lose") message = "Dealer Wins!";
-  else if (resultText === "tie") message = "Push!";
-  else if (resultText === "bust") message = "Bust!";
-  else if (resultText === "blackjack") message = "Blackjack!";
+  if (resultText === "win"){
+      message = "You Win!";
+      animateBalanceChange(amount * 2);
+  } else if (resultText === "lose") {
+      message = "Dealer Wins!";
+  } else if (resultText === "tie") {
+      message = "Push!";
+      animateBalanceChange(amount);
+  } else if (resultText === "bust") {
+      message = "Bust!";
+  } else if (resultText === "blackjack") {
+      message = "Blackjack!";
+      animateBalanceChange(amount * 2.5);
+  }
 
   $("#final-result").text(message);
   $("#end-screen").fadeIn();
@@ -336,6 +346,7 @@ function playAgain() {
       initialDealerCards = [];
       $("#player-score").text(0);
       $("#dealer-score").text(0);
+      animateBalanceChange(data.amount);
       dealInitialCards(data.player_cards, data.dealer_cards);
     });
       

@@ -150,7 +150,8 @@ def stand():
 
     return jsonify({
         "dealer_hand": session["dealer_hand"],  # the final dealer hand
-        "result": result
+        "result": result,
+        "amount": session["bet"]
     })
 
 @app.route("/double_down", methods=["POST"])
@@ -175,7 +176,8 @@ def double_down_route():
         save_blackjack(user_id, session['bet'], session['player_hand'],session['dealer_hand'], 1)
 
         return jsonify({
-            "new_card": new_card
+            "new_card": new_card,
+            "amount": -session["bet"]//2
 #             "result": result
         })
 
@@ -191,7 +193,8 @@ def play_again():
 
     return jsonify({
         "player_cards": session["player_hand"],
-        "dealer_cards": session["dealer_hand"]
+        "dealer_cards": session["dealer_hand"],
+        "amount": -session["bet"]
     })
 
 @app.route("/plinko")
