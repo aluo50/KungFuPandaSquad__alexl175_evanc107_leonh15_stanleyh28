@@ -10,6 +10,7 @@ import sqlite3
 import os
 import database
 import json
+import pandas as pd
 from database import save_blackjack, load_blackjack, update_balance, login_user, add_user, get_user, add_blackjack_user
 from games.blackjack import (
     calculate_hand_value,
@@ -317,6 +318,29 @@ def mines_cashout():
     session['accumulated'] = 0
 
     return jsonify({"message": "Cashed out successfully.","balance": new_balance,"accumulated": session['accumulated']})
+
+@app.route("/leaderboard", methods=["POST"])
+def leaderboard():
+    if "username" in session:
+        user_info = database.get_user(session["username"])
+        balance = user_info["balance"]
+        session['balance'] = balance
+        return render_template("home.html", username=session["username"], balance=balance)
+    else:
+        return render_template("home.html", username=None, balance=None)
+
+@app.route("/history", methods=["POST"])
+def history():
+    def leaderboard():
+    if "username" in session:
+        user_info = database.get_user(session["username"])
+        balance = user_info["balance"]
+        session['balance'] = balance
+        return render_template("history.html", username=session["username"], balance=balance)
+    else:
+        return render_template("history.html", username=None, balance=None)
+
+    
 
 if __name__ == "__main__":
     app.run(debug=True)
