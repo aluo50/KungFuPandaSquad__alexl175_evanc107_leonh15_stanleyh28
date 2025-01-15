@@ -79,3 +79,8 @@ alexL - 2025 1-14 8:20
  - updated mines.html with cashout and reset
  - added css for styling
 
+stanleyH - 2025-1-15 0:09
+ - added coin animation
+ - fixed some blackjack bugs
+ - allowed balance implementation
+ - some other stuff I forgot

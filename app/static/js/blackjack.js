@@ -273,6 +273,7 @@ function doubleDown() {
   $.post("/double_down", function (data) {
     if (data.new_card != false) {
         animateBalanceChange(data.amount);
+        animateBet(data.bet);
         dealCard("player", "face-up", getCardImage(data.new_card));
         updateScore(data.new_card, "player");
         // If player busts, just display result and dealer doesn't need to draw
@@ -347,6 +348,7 @@ function playAgain() {
       $("#player-score").text(0);
       $("#dealer-score").text(0);
       animateBalanceChange(data.amount);
+      animateBet(data.bet);
       dealInitialCards(data.player_cards, data.dealer_cards);
     });
       
@@ -422,3 +424,20 @@ function animateBalanceChange(amount) {
     }, 1200);
 }
 
+function animateBet(target) {
+    const betElement = document.getElementById("bet");
+    let currentBet = parseInt(betElement.innerText);
+    let increment = (target-currentBet) / 20;
+    setTimeout(() => {
+        let counter = setInterval(() => {
+            if ((increment > 0 && currentBet < target) ||
+                (increment < 0 && currentBet > target)) {
+                currentBet += increment;
+                betElement.innerText = Math.round(currentBet);
+            } else {
+                clearInterval(counter);
+                betElement.innerText = target;
+            }
+        }, 50);
+    }, 1200);
+}

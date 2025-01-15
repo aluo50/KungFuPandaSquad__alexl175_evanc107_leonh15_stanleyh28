@@ -111,7 +111,8 @@ def play_blackjack():
         dealer_cards=dealer_cards,
         game_over=game_over,
         username=session["username"],
-        balance=session["balance"]
+        balance=session["balance"],
+        bet=session["bet"]
     )
 
 # hit
@@ -177,7 +178,8 @@ def double_down_route():
 
         return jsonify({
             "new_card": new_card,
-            "amount": -session["bet"]//2
+            "amount": -session["bet"]//2,
+            "bet": session["bet"]
 #             "result": result
         })
 
@@ -194,7 +196,8 @@ def play_again():
     return jsonify({
         "player_cards": session["player_hand"],
         "dealer_cards": session["dealer_hand"],
-        "amount": -session["bet"]
+        "amount": -session["bet"],
+        "bet": session["bet"]
     })
 
 @app.route("/plinko")

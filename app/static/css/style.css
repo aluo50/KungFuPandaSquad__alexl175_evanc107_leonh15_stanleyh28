@@ -265,6 +265,12 @@ color: #155724;
     gap: 5px; 
 }
 
+.bet-info {
+    display: flex;
+    align-items: center;
+    gap: 5px; 
+}
+
 .coin-icon {
     width: 24px; 
     height: 24px;
@@ -295,6 +301,11 @@ color: #155724;
 }
 
 #balance {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+#bet {
     font-size: 1.5rem;
     font-weight: bold;
 }
