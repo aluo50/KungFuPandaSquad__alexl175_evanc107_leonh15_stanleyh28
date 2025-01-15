@@ -80,6 +80,7 @@ def play_blackjack():
             dealer_hand = result['dealer_hand']
             session['player_hand'] = player_hand
             session['dealer_hand'] = dealer_hand
+            game_over = result['game_over']
             cards = [i for i in range(52)]
             for card in player_hand:
                 cards.remove(card)
@@ -91,7 +92,8 @@ def play_blackjack():
         else:
             initialize_game(bet)
             add_blackjack_user(user_id)
-            save_blackjack(user_id, 100, session['player_hand'],session['dealer_hand'])
+            save_blackjack(user_id, 100, session['player_hand'],session['dealer_hand'], 0)
+            game_over = False
     else:
         flash('Login to play!', 'error')
         return redirect(url_for("home"))
@@ -104,22 +106,18 @@ def play_blackjack():
         "blackjack.html",
         player_cards=player_cards,
         dealer_cards=dealer_cards,
+        game_over=game_over
     )
 
 # hit
 @app.route("/hit", methods=["POST"])
 def hit():
-    """
-    Player requests a hit.
-    The server draws one card for the player (player_hit),
-    returns the new card so front end can animate it.
-    """
     player_hit()
     new_card = session["player_hand"][-1]  # the newly drawn card
     
     user_id = get_user(session['username'])['user_id']
     
-    save_blackjack(user_id, session['bet'], session['player_hand'], session['dealer_hand'])
+    save_blackjack(user_id, session['bet'], session['player_hand'], session['dealer_hand'], 0)
 
     # Check if the player busted
     player_value = calculate_hand_value(session["player_hand"])
@@ -143,7 +141,7 @@ def stand():
     
     user_id = get_user(session['username'])['user_id']
     
-    save_blackjack(user_id, 100, session['player_hand'],session['dealer_hand'])
+    save_blackjack(user_id, 100, session['player_hand'],session['dealer_hand'], 1)
 
     return jsonify({
         "dealer_hand": session["dealer_hand"],  # the final dealer hand
@@ -154,9 +152,13 @@ def stand():
 def double_down_route():
     balance = session['balance']
     if session['bet'] > balance:
+        # fix flash
         flash("You don't have enough money to double down!", 'error')
-        return
+        return jsonify({
+            "new_card": False
+        })
     else:
+        session['balance'] -= session['bet']
         session['bet'] *= 2
         double_down()
         result = determine_winner()
@@ -164,7 +166,7 @@ def double_down_route():
         
         user_id = get_user(session['username'])['user_id']
         
-        save_blackjack(user_id, session['bet'], session['player_hand'],session['dealer_hand'])
+        save_blackjack(user_id, session['bet'], session['player_hand'],session['dealer_hand'], 1)
 
         return jsonify({
             "new_card": new_card,
@@ -179,7 +181,7 @@ def play_again():
 
     if 'username' in session:
         user_id = get_user(session['username'])['user_id']
-        save_blackjack(user_id, 100, session['player_hand'],session['dealer_hand'])
+        save_blackjack(user_id, 100, session['player_hand'],session['dealer_hand'], 0)
 
     return jsonify({
         "player_cards": session["player_hand"],

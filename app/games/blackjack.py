@@ -39,6 +39,7 @@ def calculate_hand_value(cards):
     return total
 
 def initialize_game(bet):
+    print(session['balance'])
     session['bet'] = bet
     session['balance'] -= bet
     session['deck'] = [i for i in range(52)]
@@ -86,11 +87,16 @@ def determine_winner():
         user_info = get_user(session['username'])
         user_id = user_info['user_id']
         if outcome == 'win':
+            session['balance'] += session['bet'] * 2
             update_balance(user_id, "blackjack", session['bet'])
         elif outcome == 'blackjack':
+            session['balance'] += session['bet'] * 2.5
             update_balance(user_id, "blackjack", session['bet']*1.5)
-        else:
+        elif outcome == 'loss' or outcome == 'bust':
             update_balance(user_id, "blackjack", -session['bet'])
+        else:
+            session['balance'] += session['bet']
+            update_balance(user_id, "blackjack", 0)
     
     return outcome
 

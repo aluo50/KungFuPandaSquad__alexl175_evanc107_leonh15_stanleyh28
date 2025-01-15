@@ -45,7 +45,8 @@ def create_db():
             user_id INTEGER NOT NULL,
             bet_amount INTEGER,
             player_hand TEXT,
-            dealer_hand TEXT
+            dealer_hand TEXT,
+            game_over INT
         );
     ''')
     
@@ -133,16 +134,17 @@ def load_blackjack(user_id):
         return{
             'bet': row['bet_amount'],
             'player_hand': json.loads(row['player_hand']),
-            'dealer_hand': json.loads(row['dealer_hand'])
+            'dealer_hand': json.loads(row['dealer_hand']),
+            'game_over': row['game_over']
         }
     return None
 
 # update blackjack_sessions row with latest game state
-def save_blackjack(user_id, bet, player_hand, dealer_hand):
+def save_blackjack(user_id, bet, player_hand, dealer_hand, game_over):
     conn = get_db_connection()
     cur = conn.cursor()
 
-    cur.execute("UPDATE blackjack_in_progress SET bet_amount=?, player_hand=?, dealer_hand=? WHERE user_id=?", (bet, json.dumps(player_hand), json.dumps(dealer_hand), user_id))
+    cur.execute("UPDATE blackjack_in_progress SET bet_amount=?, player_hand=?, dealer_hand=?, game_over=? WHERE user_id=?", (bet, json.dumps(player_hand), json.dumps(dealer_hand), game_over, user_id))
 
     conn.commit()
     conn.close()
@@ -151,7 +153,7 @@ def save_blackjack(user_id, bet, player_hand, dealer_hand):
 def add_blackjack_user(user_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("INSERT INTO blackjack_in_progress (user_id, bet_amount, player_hand, dealer_hand) VALUES (?, ?, ?, ?)", (user_id, 0, json.dumps([]), json.dumps([])))
+    cur.execute("INSERT INTO blackjack_in_progress (user_id, bet_amount, player_hand, dealer_hand, game_over) VALUES (?, ?, ?, ?, ?)", (user_id, 0, json.dumps([]), json.dumps([]), 0))
     conn.commit()
     conn.close()
     

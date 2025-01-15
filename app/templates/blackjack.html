@@ -16,6 +16,7 @@ Time spent: x -->
   <script>
     var initialPlayerCards = {{ player_cards | tojson }};
     var initialDealerCards = {{ dealer_cards | tojson }};
+    var game_over = {% if game_over == 1 %} true {% else %} false {% endif %};
   </script>
 
   <!-- Our Blackjack logic -->

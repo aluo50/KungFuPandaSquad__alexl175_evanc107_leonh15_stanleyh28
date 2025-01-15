@@ -71,21 +71,20 @@ function startGameSequence() {
     $("#deck .card").removeClass("shuffling");
     dealInitialCards(firstPlayerCards, firstDealerCards);
   }, 2000);
-  if (calculateHandValue(firstPlayerCards) == 21) {
+  if (calculateHandValue(firstPlayerCards) === 21) {
       setTimeout(() => stand(), 6000);
   }
     
   if (firstPlayerCards.length > 2) {
       setTimeout(() => {
           for (i=2; i<firstPlayerCards.length; i++) {
-              console.log(firstPlayerCards)
               hit(card=firstPlayerCards[i]);
           }
       }, 6000);
   }
     
-  if (firstDealerCards.length > 2) {
-      setTimeout(() => stand(cards=firstDealerCards.slice(2)), 6000 + (firstPlayerCards.length-2) * 600);
+  if (game_over === true) { //firstDealerCards.length > 2 && calculateHandValue(firstPlayerCards) != 21
+      setTimeout(() => stand(firstDealerCards.slice(2)), 6000 + (firstPlayerCards.length-2) * 600);
   }
 }
 
@@ -180,53 +179,24 @@ function dealCard(target, faceState, cardUrl) {
     );
 }
 
-// stand function
-function stand(cards=null) {
-  if (cards === null) {
-      $.post("/stand", function (data) {
-        // Flip the second card dealer face down card (data.dealer_hand[1])
-        flipDealerFaceDownCard(data.dealer_hand[1]);
-
-        setTimeout(() => {
-
-            // Animate additional dealer draws if needed
-            if (data.dealer_hand.length > 2) {
-              // Start from index 2
-              animateDealerDraws(data.dealer_hand.slice(2));
-            }
-        }, 600);
-
-        // show result
-        setTimeout(() => showEndScreen(data.result), 200 + 600 * data.dealer_hand.length);
-      });
-  } else {
-    // Flip the second card dealer face down card
-    flipDealerFaceDownCard(firstDealerCards[1]);
-
-    setTimeout(() => animateDealerDraws(cards), 600);
-
-    // show result
-    setTimeout(() => {
-        dealer_score = calculateHandValue(initialDealerCards);
-        player_score = calculateHandValue(initialPlayerCards);
-
-        if (dealer_score > 21) {
-            if (player_score === 21) {
-                result = 'blackjack';
-            } else {
-                result = 'win';
-            }
-        } else if (dealer_score === player_score) {
-            result = 'tie';
+// Determines game result based on scores
+function determineGameResult(dealer_score, player_score) {
+    if (dealer_score > 21) {
+        if (player_score === 21) {
+            return 'blackjack';
         } else {
-            result = 'lose';
+            return 'win';
         }
-        showEndScreen(result);
-    }, 400 + 600 * cards.length);
-  }
+    } else if (dealer_score === player_score) {
+        return 'tie';
+    } else if (player_score > dealer_score) {
+        return 'win';
+    } else {
+        return 'lose';
+    }
 }
 
-// hit function
+// Hit function
 function hit(card=null) {
   if (card===null) {
       $.post("/hit", function (data) {
@@ -260,18 +230,58 @@ function hit(card=null) {
       
 }
 
+// Stand function
+function stand(cards=[]) {
+  if (cards.length === 0) {
+      $.post("/stand", function (data) {
+        // Flip the second card dealer face down card (data.dealer_hand[1])
+        flipDealerFaceDownCard(data.dealer_hand[1]);
+
+        setTimeout(() => {
+
+            // Animate additional dealer draws if needed
+            if (data.dealer_hand.length > 2) {
+              // Start from index 2
+              animateDealerDraws(data.dealer_hand.slice(2));
+            }
+        }, 600);
+
+        // show result
+        setTimeout(() => showEndScreen(data.result), 200 + 600 * data.dealer_hand.length);
+      });
+  } else {
+    // Flip the second card dealer face down card
+    flipDealerFaceDownCard(firstDealerCards[1]);
+
+    setTimeout(() => animateDealerDraws(cards), 600);
+
+    // show result
+    setTimeout(() => {
+        dealer_score = calculateHandValue(initialDealerCards);
+        player_score = calculateHandValue(initialPlayerCards);
+
+        let result = determineGameResult(dealer_score, player_score);
+        
+        showEndScreen(result);
+    }, 400 + 600 * cards.length);
+  }
+}
+
+// Double down function
 function doubleDown() {
   // Similar to hit
   $.post("/double_down", function (data) {
-    dealCard("player", "face-up", getCardImage(data.new_card));
-    updateScore(data.new_card, "player");
-    // If player busts, just display result and dealer doesn't need to draw
-    if (data.result === 'bust') {
-        setTimeout(() => showEndScreen(data.result), 1200);
-    } else {
-        setTimeout(() => {
-          stand(data)
-        }, 1200);
+    if (data.new_card != false) {
+        dealCard("player", "face-up", getCardImage(data.new_card));
+        updateScore(data.new_card, "player");
+        // If player busts, just display result and dealer doesn't need to draw
+        if (data.result === 'bust') {
+            setTimeout(() => showEndScreen(data.result), 1200);
+        } else {
+            setTimeout(() => {
+              stand()
+            }, 1200);
+        }
     }
   });
 }
@@ -307,7 +317,7 @@ function showEndScreen(resultText) {
   else if (resultText === "lose") message = "Dealer Wins!";
   else if (resultText === "tie") message = "Push!";
   else if (resultText === "bust") message = "Bust!";
-  else if (resultText == "blackjack") message = "Blackjack!";
+  else if (resultText === "blackjack") message = "Blackjack!";
 
   $("#final-result").text(message);
   $("#end-screen").fadeIn();
