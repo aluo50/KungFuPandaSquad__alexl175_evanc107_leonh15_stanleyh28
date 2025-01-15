@@ -65,6 +65,17 @@ evanC - 2025-1-13 22:58
    - animations for hovering and clicking based on frame counts
    - no balance altering or ui yet
 
+alexL - 2025 1-13 23:00
+ - implemented logistic map chaos for balls in plinko
+ - implemented mult labels and risk options for plinko
+
 evanC - 2025-1-14 10:36
 - changes to mines.html
    - mine game has ending transitions and animations
+
+alexL - 2025 1-14 8:20
+ - routed plinko and mines
+ - updated home.html
+ - updated mines.html with cashout and reset
+ - added css for styling
+

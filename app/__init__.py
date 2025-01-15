@@ -235,7 +235,82 @@ def plinko_result():
     session["balance"] = new_balance
 
     return jsonify({"balance":new_balance, "winnings":winnings})
-        
+
+
+@app.route("/mines")
+def mines():
+    if "username" not in session:
+        flash("Login to play Mines!", "error")
+        return redirect(url_for("login"))
+
+    user_info = get_user(session["username"])
+    balance = user_info["balance"]
+    session["balance"] = balance 
+
+    bet_amount = 50
+    
+    if 'accumulated' not in session:
+        session['accumulated'] = 0
+
+    return render_template("mines.html",username=session["username"], balance=balance, bet=bet_amount, accumulated=session['accumulated'])
+
+@app.route("/mines_increment", methods=["POST"])
+def mines_increment():
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+
+    increment_amount = 10  
+
+    if 'accumulated' not in session:
+        session['accumulated'] = 0
+
+    session['accumulated'] += increment_amount
+
+    return jsonify({
+        "accumulated": session['accumulated']
+    })
+
+@app.route("/mines_lose", methods=["POST"])
+def mines_lose():
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+
+    user_id = get_user(session['username'])['user_id']
+    bet_amount = 50
+    new_balance = update_balance(user_id, "mines", -bet_amount)
+    session["balance"] = new_balance
+
+    session['accumulated'] = 0
+
+    return jsonify({"message": "lost", "balance": new_balance, "accumulated": session['accumulated']})
+
+@app.route("/mines_win", methods=["POST"])
+def mines_win():
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+
+    user_id = get_user(session['username'])['user_id']
+    bet_amount = 50
+    new_balance = update_balance(user_id, "mines", bet_amount)
+    session["balance"] = new_balance
+
+    accumulated = session.get('accumulated', 0)
+    
+    return jsonify({"message": "won", "balance": new_balance, "accumulated": accumulated})
+
+@app.route("/mines_cashout", methods=["POST"])
+def mines_cashout():
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+
+    user_id = get_user(session['username'])['user_id']
+
+    accumulated = session.get('accumulated', 0)
+    new_balance = update_balance(user_id, "mines", accumulated)
+    session["balance"] = new_balance
+    session['accumulated'] = 0
+
+    return jsonify({"message": "Cashed out successfully.","balance": new_balance,"accumulated": session['accumulated']})
 
 if __name__ == "__main__":
     app.run(debug=True)
