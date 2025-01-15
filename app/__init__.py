@@ -235,7 +235,43 @@ def plinko_result():
     session["balance"] = new_balance
 
     return jsonify({"balance":new_balance, "winnings":winnings})
-        
+
+
+@app.route("/mines")
+def mines():
+    if "username" not in session:
+        flash("Login to play Mines!", "error")
+        return redirect(url_for("login"))
+
+    user_info = get_user(session["username"])
+    balance = user_info["balance"]
+    session["balance"] = balance 
+
+    return render_template("mines.html",username=session["username"], balance=balance)
+
+@app.route("/mines_lose", methods=["POST"])
+def mines_lose():
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+
+    user_id = get_user(session['username'])['user_id']
+    bet_amount = 50
+    new_balance = update_balance(user_id, "mineso", -bet_amount)
+    session["balance"] = new_balance
+
+    return jsonify({"message": "lost", "balance": new_balance})
+
+@app.route("/mines_win", methods=["POST"])
+def mines_win():
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+
+    user_id = get_user(session['username'])['user_id']
+    bet_amount = 50
+    new_balance = update_balance(user_id, "mineso", bet_amount)
+    session["balance"] = new_balance
+    
+    return jsonify({"message": "won", "balance": new_balance})
 
 if __name__ == "__main__":
     app.run(debug=True)
