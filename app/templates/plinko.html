@@ -307,6 +307,19 @@ Time spent: x
         ctx.font = `400 ${24*prop}px 'Calibri', sans-serif`;
         ctx.fillText("Drop Ball", (1/20)*cWidth+(.5*(side2side[1]-((2/20)*cWidth))), ((7/12)*cHeight)+0.5*(cHeight/12));
 
+        ctx.fillStyle = "#007bff"; 
+        ctx.beginPath();
+        ctx.roundRect((1 / 80) * cWidth,(5 / 12) * cHeight - cHeight / 12 - 20,side2side[1] - (2 / 80) * cWidth,cHeight / 14,1 / 40 * cHeight);
+        ctx.fill();
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `400 ${22 * prop}px 'Calibri', sans-serif`;
+        ctx.fillText("Home",(1 / 20) * cWidth + 0.5 * (side2side[1] - (2 / 20) * cWidth),(5 / 12) * cHeight - cHeight / 24 - 20);
+
+        ctx.fillStyle = "#6c757d"; 
+        
+
       }//displayUI
 
       function createGrid(){
