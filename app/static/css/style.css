@@ -319,16 +319,11 @@ color: #155724;
 .navbar li a {
   color: #ffffff; 
   font-weight: bold;
-<<<<<<< HEAD
   text-decoration: none; 
   font-size: 1rem; 
   padding: 0.5rem 1rem; 
   transition: background-color 0.3s ease, color 0.3s ease; 
   border-radius: 5px; 
-=======
-  margin: 0; 
-  font-family: Arial, sans-serif;
->>>>>>> 634a924750759afae6b573eadfe8c4d5455e9f9d
 }
 
 /* Hover effect */
@@ -453,7 +448,6 @@ body {
   background-color: #f2f2f2;
 }
 
-<<<<<<< HEAD
 .change-positive {
     color: green;
     font-weight: bold;
@@ -508,41 +502,3 @@ body {
 .modal-content button:hover {
     background: #218838;
 }
-=======
-.form-container {
-  width: 80%;
-  max-width: 400px;
-  margin: 0 auto; 
-  padding: 20px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-}
-
-form label{
-  display:block;
-  font-weight:bold;
-  margin-bottom:5px;
-  color: #555;
-}
-
-form input {
-  width:100%;
-  padding: 10px;
-  margin: 10px 0 20px;
-  border: 1px solid #ccc;
-  border-radius:5px;
-  box-sizing: border-box;
-}
-
-form button {
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border:none;
-  border-radius:5px;
-  cursor: pointer;
-}
-
->>>>>>> 634a924750759afae6b573eadfe8c4d5455e9f9d
