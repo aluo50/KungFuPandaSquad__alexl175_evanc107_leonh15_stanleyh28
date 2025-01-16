@@ -295,16 +295,16 @@ color: #155724;
 
 /* Navbar container */
 .navbar {
-  position: fixed; /* Makes it float */
-  top: 0; /* Sticks it to the top of the page */
-  width: 100%; /* Full-width */
-  background-color: #333333; /* Dark background */
-  z-index: 1000; /* Ensures it stays above other elements */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow for a subtle 3D effect */
-  padding: 0.5rem 2rem; /* Adjust padding for better spacing */
-  display: flex; /* Makes it flexible for child elements */
+  position: fixed; 
+  top: 0;
+  width: 100%; 
+  background-color: #333333; 
+  z-index: 1000; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 2rem; 
+  display: flex; 
   align-items: center;
-  justify-content: space-between; /* Space out links */
+  justify-content: space-between; 
 }
 
 /* Navbar */
