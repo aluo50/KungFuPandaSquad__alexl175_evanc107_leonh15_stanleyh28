@@ -94,3 +94,8 @@ alexL - 2025-1-15 20:24
  - updated home.html by adding a nav bar and styling for the game buttons
  - added leaderboard.html 
  - updated plinko for transactions and so that buttons are on the canvas
+
+stanleyH - 2025-1-16 2:24
+ - Added styling and nav bars
+ - Added screen to enter bet amount for blackjack
+ - Added transaction colors, flashing messages
