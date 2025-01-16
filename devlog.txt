@@ -84,3 +84,13 @@ stanleyH - 2025-1-15 0:09
  - fixed some blackjack bugs
  - allowed balance implementation
  - some other stuff I forgot
+
+alexL - 2025-1-15 10:50
+ - updated constants and fixed bugs so plinko would run
+ - fixed styling on mines.html
+
+alexL - 2025-1-15 20:24
+ - updated databases and routing for leaderboard and past transactions (wins/losses between games)
+ - updated home.html by adding a nav bar and styling for the game buttons
+ - added leaderboard.html 
+ - updated plinko for transactions and so that buttons are on the canvas
