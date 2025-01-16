@@ -163,7 +163,16 @@ def get_leaderboard():
     cur.execute("SELECT username, balance FROM users ORDER BY balance DESC;")
     results = cur.fetchall()
     conn.close()
-    return results
+
+    leaderboard = []
+    rank = 1
+    prev_balance = None
+    for i, row in enumerate(results):
+        if prev_balance is not None and row['balance'] != prev_balance:
+            rank = i+1
+        leaderboard.append({'rank': rank, 'username': row['username'], 'balance':row['balance']})
+        prev_balance = row['balance']
+    return leaderboard
 
 def get_transaction_history(user_id):
     conn = get_db_connection()

@@ -10,8 +10,7 @@ import sqlite3
 import os
 import database
 import json
-import pandas as pd
-from database import save_blackjack, load_blackjack, update_balance, login_user, add_user, get_user, add_blackjack_user, get_transaction_history
+from database import save_blackjack, load_blackjack, update_balance, login_user, add_user, get_user, add_blackjack_user, get_leaderboard, get_transaction_history
 from games.blackjack import (
     calculate_hand_value,
     initialize_game,

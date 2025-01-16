@@ -28,7 +28,35 @@ Time spent: x
             {% endif %}
         {% endwith %}
     </header>
-   =
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
+        </ul>
+    </nav>
+
+    <h1>Leaderboard</h1>
+
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in leaderboard %}
+            <tr>
+                <td>{{ row['rank'] }}</td>
+                <td>{{ row['username'] }}</td>
+                <td>{{ row['balance'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
     </body>
 </html>
 

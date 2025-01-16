@@ -28,24 +28,69 @@ Time spent: x
             {% endif %}
         {% endwith %}
     </header>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
+        </ul>
+    </nav>
     
-    <h1>Steak Co.</h1>
+    <h1 class="home-title">Steak Co.</h1>
         
 
     {% if username %}
         <h2 class="home-subtitle">Welcome back, {{ username }}!</h2>
         <p class="home-paragraph">Your current balance is: <strong>{{ balance }}</strong></p>
 
-        <div class="button-group-home">
-            <a href="{{ url_for('play_blackjack') }}">
-                <button class="btn-home">Play Blackjack</button>
+        <div class="game-buttons-container">
+            <a href="{{ url_for('play_blackjack') }}" class="game-link">
+                <div class="game-button">
+                    <img src="{{ url_for('static', filename='images/blackjackbutton.png') }}" class="game-icon"/>
+
+                </div>
             </a>
-            <a href="{{ url_for('plinko') }}">
-                <button class="btn-home">Play Plinko</button>
+            <a href="{{ url_for('plinko') }}" class="game-link">
+                <div class="game-button">
+                    <img src="{{ url_for('static', filename='images/plinkobutton.png') }}" class="game-icon"/>
+                </div>
             </a>
-            <a href="{{ url_for('mines') }}">
-                <button class="btn-home">Play Mines</button>
+            <a href="{{ url_for('mines') }}" class="game-link">
+                <div class="game-button">
+                    <img src="{{ url_for('static', filename='images/minesbutton.png') }}" class="game-icon"/>
+
+                </div>
             </a>
+        </div>
+
+        <div class="placeholder-container">
+            <img src="{{ url_for('static', filename='images/flagForSite.jpg') }}" class="teamflag"/>
+        </div>
+
+        <h2 class="transactions-label">transaction history</h2>
+        <div class="transaction-table-container">
+        {% if transactions %}
+            <table class="transaction-table">
+                <thead>
+                    <tr>
+                        <th>Game</th>
+                        <th>Change</th>
+                        <th>New Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                        <tr>
+                            <td>{{ t['game'] }}</td>
+                            <td>{{ t['change'] }}</td>
+                            <td>{{ t['new_balance'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="transactions-label ">no transactions yet</p>
+        {% endif %}
         </div>
 
         <div class="logout-container">
@@ -53,26 +98,7 @@ Time spent: x
                 <button type="submit">Logout</button>
             </form>
         </div>
-        <!--
-        {% if saved_games %}
-            <h3>Your active games:</h3>
-            {% for game in saved_games %}
-            <li> 
-                Game Type: {{ game["game_type"] }}
-                Status : {{ game["status"] }}
-                <form action="{{ url_for('resume_game') }}" method = "POST">
-                    <input type="hidden" name="game_id" value="{{ game['game_id'] }}">
-                    <button type="submit">Resume</button>
-                </form>
-            </li>
-            {% endfor %}
-        {% else %}
-            <p> No in progress games. Start a new one!</p>
-        {% endif %}
-        <form action="{{ url_for('logout') }}" method="POST">
-            <button type="submit">Logout</button>
-        </form>
-        -->
+
     {% else %}
         <h2 class="home-subtitle">Welcome to Steak Co.</h2>
         <p class="home-paragraph">Please login or register to play.</p>
