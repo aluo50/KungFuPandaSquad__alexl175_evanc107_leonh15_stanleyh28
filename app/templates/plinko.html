@@ -40,6 +40,9 @@ Time spent: x
     </style>
   </head>
   <body onload = "startGame()">
+    <div style="position: fixed; top: 20px; right: 20px; font-size: 24px; color: #000;">
+      Balance: <span id="balance-value">{{ balance }}</span>
+    </div>
     <script>
 
       //logistic chaos
@@ -187,8 +190,16 @@ Time spent: x
           risk = riskCycle[(idx + 1) % riskCycle.length];
         }
         else if (inRect(dropBtnRect)){
-          spawnBall(1);
+          fetch("/plinko_drop", { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+              if (data.balance !== undefined) {
+                document.getElementById("balance-value").textContent = data.balance;
+              }
+              spawnBall(1);
+          })
         }
+
         else if (inRect(homeBtnRect)){
           window.location.href="/";
         }
@@ -492,7 +503,30 @@ Time spent: x
 
           if(this.pos[1]>=((29.4/32)*cHeight)-ballSize+(1/100)*cHeight){
             const index = balls.indexOf(this);
-            if (index !== -1) balls.splice(index, 1);
+            if (index !== -1){
+              let colIndex = getColumnIndexForBall(this.pos[0]);
+              let rowKey = String(rows);
+              let riskKey = risk;
+              let arr = multipliers[rowKey][riskKey];
+              if (colIndex < 0) colIndex = 0;
+              if (colIndex >= arr.length) colIndex = arr.length - 1;
+              let finalMultiplier = arr[colIndex];
+
+              const formData = new FormData();
+              formData.append("multiplier", finalMultiplier);
+
+              fetch("/plinko_result", {
+                method: "POST",
+                body: formData
+              })
+                .then(res => res.json())
+                .then(data => {
+                  if(data.balance !== undefined) {
+                    document.getElementById("balance-value").textContent = data.balance;
+                  }
+                })
+            balls.splice(index, 1);
+              }
           }
         }//run
 
@@ -564,6 +598,22 @@ Time spent: x
         var rect = canvas.getBoundingClientRect();
         return [evt.clientX - rect.left, evt.clientY - rect.top];
       }//getMousePos gets mouse position relative to canvas, derived from stack overflow
+
+      function getColumnIndexForBall(x) {
+        let side2side = [(7/16) * cWidth, (7/8) * cWidth];
+        let rowKey = String(rows);   
+        let riskKey = risk;          
+        let arr = multipliers[rowKey][riskKey]; 
+        let colCount = arr.length;
+        let xRange = side2side[1] - side2side[0];
+        let colWidth = xRange / colCount;
+        if (x < side2side[0]) return 0
+        if (x > side2side[1]) return colCount - 1;
+        let colIndex = Math.floor( (x - side2side[0]) / colWidth );
+        if (colIndex < 0) colIndex = 0;
+        if (colIndex >= colCount) colIndex = colCount - 1;
+        return colIndex;
+      }//getColumnIndexForBall calculates which column the ball lands in by using its x position.
 
     </script>
 

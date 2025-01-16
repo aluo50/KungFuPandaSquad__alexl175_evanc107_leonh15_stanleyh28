@@ -193,6 +193,7 @@ color: #155724;
 .home-paragraph,
 .login-register-container{
   text-align:center;
+  font-family: Arial, sans-serif;
 }
 
 .home-title{
@@ -202,25 +203,12 @@ color: #155724;
 
 .home-subtitle{
   margin:10px 0;
+  font-size: 1.5rem;
+  text-align: center;
 }
 
 .home-paragraph{
   margin:10;
-}
-
-.logout-container{
-  text-align:center;
-  margin-top:40px;
-}
-
-.logout-container .btn-logout{
-  padding:10px 20px;
-  cursor: pointer;
-}
-
-.login-register-container .btn-login-register{
-  padding:10px 20px;
-  cursor:pointer;
 }
 
 .player-info {
@@ -331,11 +319,16 @@ color: #155724;
 .navbar li a {
   color: #ffffff; 
   font-weight: bold;
+<<<<<<< HEAD
   text-decoration: none; 
   font-size: 1rem; 
   padding: 0.5rem 1rem; 
   transition: background-color 0.3s ease, color 0.3s ease; 
   border-radius: 5px; 
+=======
+  margin: 0; 
+  font-family: Arial, sans-serif;
+>>>>>>> 634a924750759afae6b573eadfe8c4d5455e9f9d
 }
 
 /* Hover effect */
@@ -347,6 +340,19 @@ color: #155724;
 
 body {
   padding-top: 60px; 
+}
+
+.navbar li.logout-button{
+  margin-left: auto;
+}
+
+.navbar li form button{
+  background-color: #dc3545; 
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .game-buttons-container {
@@ -394,6 +400,7 @@ body {
 .transaction-table-container {
   text-align: center; 
   margin-top: 30px; 
+  font-family: Arial, sans-serif;
 }
 
 .transaction-table {
@@ -408,6 +415,14 @@ body {
   margin-top: 20px;   
   font-size: 1.2rem; 
   color: gray;       
+}
+
+.transactions-label a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+  text-decoration: underline;
+  font-family: Arial, sans-serif;
 }
 
 .transaction-table th,
@@ -438,6 +453,7 @@ body {
   background-color: #f2f2f2;
 }
 
+<<<<<<< HEAD
 .change-positive {
     color: green;
     font-weight: bold;
@@ -492,3 +508,41 @@ body {
 .modal-content button:hover {
     background: #218838;
 }
+=======
+.form-container {
+  width: 80%;
+  max-width: 400px;
+  margin: 0 auto; 
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+form label{
+  display:block;
+  font-weight:bold;
+  margin-bottom:5px;
+  color: #555;
+}
+
+form input {
+  width:100%;
+  padding: 10px;
+  margin: 10px 0 20px;
+  border: 1px solid #ccc;
+  border-radius:5px;
+  box-sizing: border-box;
+}
+
+form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border:none;
+  border-radius:5px;
+  cursor: pointer;
+}
+
+>>>>>>> 634a924750759afae6b573eadfe8c4d5455e9f9d

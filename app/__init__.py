@@ -251,13 +251,14 @@ def plinko_result():
     if "username" not in session:
         return jsonify({"error": "Not logged in"}), 403
 
-    data=request.json
-    multipler = data.get("multiplier", 1.0)
+    #data=request.json
+    multiplier_str = request.form.get("multiplier", "1.0")  
+    multiplier = float(multiplier_str)
 
     user_id = get_user(session['username'])['user_id']
 
     bet_amount = 50
-    winnings = int(bet_amount * float(multipler))
+    winnings = int(bet_amount * float(multiplier))
 
     new_balance = update_balance(user_id,"plinko", winnings)
     session["balance"] = new_balance
