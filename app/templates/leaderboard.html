@@ -1,0 +1,62 @@
+<!--
+Alex Luo, Evan Chan, Leon Huang, Stanley Hoo
+KungFuPandaSquad 
+SoftDev
+P02: Makers Makin' It, Act I
+2025-1-9
+Time spent: x
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Steak Co. Leaderboard</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+    <body>
+
+    <header>
+        <!-- Allows flashing messages in the html -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </header>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
+        </ul>
+    </nav>
+
+    <h1>Leaderboard</h1>
+
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in leaderboard %}
+            <tr>
+                <td>{{ row['rank'] }}</td>
+                <td>{{ row['username'] }}</td>
+                <td>{{ row['balance'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    </body>
+</html>
+

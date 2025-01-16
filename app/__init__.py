@@ -10,8 +10,7 @@ import sqlite3
 import os
 import database
 import json
-import pandas as pd
-from database import save_blackjack, load_blackjack, update_balance, login_user, add_user, get_user, add_blackjack_user
+from database import save_blackjack, load_blackjack, update_balance, login_user, add_user, get_user, add_blackjack_user, get_leaderboard, get_transaction_history
 from games.blackjack import (
     calculate_hand_value,
     initialize_game,
@@ -36,7 +35,10 @@ def home():
         user_info = database.get_user(session["username"])
         balance = user_info["balance"]
         session['balance'] = balance
-        return render_template("home.html", username=session["username"], balance=balance)
+
+        transactions = get_transaction_history(user_info["user_id"])
+
+        return render_template("home.html", username=session["username"], balance=balance, transactions=transactions)
     else:
         return render_template("home.html", username=None, balance=None)
 
@@ -72,18 +74,19 @@ def play_blackjack():
         user_info = get_user(session["username"])
         user_id = user_info['user_id']
 
-        bet = 100 # fixed bet for now
-
         result = load_blackjack(user_id)
 
         if result != None:
             session['bet'] = result['bet']
-            session['balance'] = get_user(session['username'])['balance'] - session['bet']
             player_hand = result['player_hand']
             dealer_hand = result['dealer_hand']
             session['player_hand'] = player_hand
             session['dealer_hand'] = dealer_hand
             game_over = result['game_over']
+            if game_over == True:
+                session['balance'] = get_user(session['username'])['balance']
+            else:
+                session['balance'] = get_user(session['username'])['balance'] - session['bet']
             cards = [i for i in range(52)]
             for card in player_hand:
                 cards.remove(card)
@@ -91,32 +94,39 @@ def play_blackjack():
                 cards.remove(card)
             session['deck'] = cards
             flash('Resumed game!','success')
+            # Retrieve the current hands from session
+            player_cards = session.get("player_hand", [])
+            dealer_cards = session.get("dealer_hand", [])
+
+            return render_template(
+                "blackjack.html",
+                body_class="blackjack-body",
+                player_cards=player_cards,
+                dealer_cards=dealer_cards,
+                game_over=game_over,
+                username=session["username"],
+                balance=session["balance"],
+                bet=session["bet"]
+            )
         
         else:
-            initialize_game(bet)
             add_blackjack_user(user_id)
-            save_blackjack(user_id, 100, session['player_hand'],session['dealer_hand'], 0)
-            game_over = False
+
+            return render_template(
+                "blackjack.html",
+                body_class="blackjack-body",
+                player_cards=[],
+                dealer_cards=[],
+                game_over=0,
+                username=session["username"],
+                balance=session["balance"],
+                bet=0
+            )
     else:
         flash('Login to play!', 'error')
         return redirect(url_for("home"))
-    
-    # Retrieve the current hands from session
-    player_cards = session.get("player_hand", [])
-    dealer_cards = session.get("dealer_hand", [])
-      
-    return render_template(
-        "blackjack.html",
-        body_class="blackjack-body",
-        player_cards=player_cards,
-        dealer_cards=dealer_cards,
-        game_over=game_over,
-        username=session["username"],
-        balance=session["balance"],
-        bet=session["bet"]
-    )
 
-# hit
+# Hit route
 @app.route("/hit", methods=["POST"])
 def hit():
     player_hit()
@@ -140,7 +150,7 @@ def hit():
         "result": result
     })
 
-# stand
+# Stand route
 @app.route("/stand", methods=["POST"])
 def stand():
     dealer_play()
@@ -148,7 +158,7 @@ def stand():
     
     user_id = get_user(session['username'])['user_id']
 
-    save_blackjack(user_id, 100, session['player_hand'],session['dealer_hand'], 1)
+    save_blackjack(user_id, session['bet'], session['player_hand'],session['dealer_hand'], 1)
 
     return jsonify({
         "dealer_hand": session["dealer_hand"],  # the final dealer hand
@@ -156,21 +166,21 @@ def stand():
         "amount": session["bet"]
     })
 
+# Double down route
 @app.route("/double_down", methods=["POST"])
 def double_down_route():
     balance = session['balance']
     if session['bet'] > balance:
         # fix flash
-        flash("You don't have enough money to double down!", 'error')
+        msg = "You don't have enough money to double down!"
         return jsonify({
-            "new_card": False
+            "new_card": False,
+            "message": msg
         })
     else:
         session['balance'] -= session['bet']
         session['bet'] *= 2
         double_down()
-        print("double down")
-#         result = determine_winner()
         new_card = session["player_hand"][-1]
         
         user_id = get_user(session['username'])['user_id']
@@ -181,20 +191,31 @@ def double_down_route():
             "new_card": new_card,
             "amount": -session["bet"]//2,
             "bet": session["bet"]
-#             "result": result
         })
 
-# resets blackjack, starts new round
-@app.route("/play_again", methods=["POST"])
-def play_again():
-    initialize_game(100)
+# Sets the bet amount
+@app.route("/set_bet", methods=["POST"])
+def set_bet():
+    if "username" not in session:
+        return jsonify({"success": False, "message": "Not logged in."}), 403
+
+    bet = int(request.form["bet"])
+    user_info = get_user(session['username'])
+    current_balance = user_info['balance']
+
+    if bet > current_balance:
+        return jsonify({"success": False, "message": "Insufficient balance."})
+
+    initialize_game(bet)
     session.modified = True
 
     if 'username' in session:
         user_id = get_user(session['username'])['user_id']
-        save_blackjack(user_id, 100, session['player_hand'],session['dealer_hand'], 0)
+        save_blackjack(user_id, bet, session['player_hand'], session['dealer_hand'], 0)
 
     return jsonify({
+        "success": True, 
+        "message": f"Bet set at {session['bet']}!",
         "player_cards": session["player_hand"],
         "dealer_cards": session["dealer_hand"],
         "amount": -session["bet"],
@@ -319,27 +340,10 @@ def mines_cashout():
 
     return jsonify({"message": "Cashed out successfully.","balance": new_balance,"accumulated": session['accumulated']})
 
-@app.route("/leaderboard", methods=["POST"])
-def leaderboard():
-    if "username" in session:
-        user_info = database.get_user(session["username"])
-        balance = user_info["balance"]
-        session['balance'] = balance
-        return render_template("home.html", username=session["username"], balance=balance)
-    else:
-        return render_template("home.html", username=None, balance=None)
-
-@app.route("/history", methods=["POST"])
-def history():
-    if "username" in session:
-        user_info = database.get_user(session["username"])
-        balance = user_info["balance"]
-        session['balance'] = balance
-        return render_template("history.html", username=session["username"], balance=balance)
-    else:
-        return render_template("history.html", username=None, balance=None)
-
-    
-
+@app.route("/leaderboard", methods=["GET"])
+def show_leaderboard():
+    results = get_leaderboard()
+    return render_template("leaderboard.html", leaderboard=results)
+ 
 if __name__ == "__main__":
     app.run(debug=True)

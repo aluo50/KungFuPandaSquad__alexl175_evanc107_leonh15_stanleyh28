@@ -50,6 +50,15 @@ Time spent: x -->
         </div>
       {% endif %}
     </header>
+  
+  <nav class="navbar">
+      <ul>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="{{ url_for('plinko') }}">Plinko</a></li>
+          <li><a href="{{ url_for('mines') }}">Mines</a></li>
+          <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
+      </ul>
+  </nav>
 
   <!-- Bet Submission Modal -->
   <div id="betModal" class="modal">

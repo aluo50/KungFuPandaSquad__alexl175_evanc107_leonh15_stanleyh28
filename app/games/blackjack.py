@@ -39,7 +39,6 @@ def calculate_hand_value(cards):
     return total
 
 def initialize_game(bet):
-    print(session['balance'])
     session['bet'] = bet
     session['balance'] -= bet
     session['deck'] = [i for i in range(52)]
@@ -68,7 +67,6 @@ def double_down():
     session.modified = True
 
 def determine_winner():
-    print("determine")
     player_value = calculate_hand_value(session['player_hand'])
     dealer_value = calculate_hand_value(session['dealer_hand'])
 

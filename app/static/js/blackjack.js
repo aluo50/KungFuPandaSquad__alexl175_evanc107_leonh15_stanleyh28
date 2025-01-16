@@ -6,7 +6,12 @@
 // Time spent: x
 
 $(document).ready(function () {
-  startGameSequence();
+  let bet_amount = parseInt($("#bet").text());
+  if (bet_amount != 0){
+      startGameSequence();
+  } else {
+      openBetModal();
+  }
 });
 
 // Translated from Python logic
@@ -83,7 +88,7 @@ function startGameSequence() {
       }, 6000);
   }
     
-  if (game_over === true) { //firstDealerCards.length > 2 && calculateHandValue(firstPlayerCards) != 21
+  if (game_over === true) {
       setTimeout(() => stand(firstDealerCards.slice(2)), 6000 + (firstPlayerCards.length-2) * 600);
   }
 }
@@ -261,8 +266,8 @@ function stand(cards=[]) {
         player_score = calculateHandValue(initialPlayerCards);
 
         let result = determineGameResult(dealer_score, player_score);
+        showEndScreen(result);
         
-        showEndScreen(result, data.amount);
     }, 400 + 600 * cards.length);
   }
 }
@@ -284,6 +289,8 @@ function doubleDown() {
               stand()
             }, 1200);
         }
+    } else {
+        showFlashMessage(data.message, "error");
     }
   });
 }
@@ -332,6 +339,7 @@ function showEndScreen(resultText, amount=0) {
 
   $("#final-result").text(message);
   $("#end-screen").fadeIn();
+  animateBet(0);
 }
 
 // Resets game
@@ -340,24 +348,15 @@ function playAgain() {
     // Clear existing cards
     $("#player-cards").empty();
     $("#dealer-cards").empty();
-
-    // resets game setup
-    $.post("/play_again", function (data) {
-      initialPlayerCards = [];
-      initialDealerCards = [];
-      $("#player-score").text(0);
-      $("#dealer-score").text(0);
-      animateBalanceChange(data.amount);
-      animateBet(data.bet);
-      dealInitialCards(data.player_cards, data.dealer_cards);
-    });
-      
-    if (calculateHandValue(initialPlayerCards) == 21) {
-      setTimeout(() => stand(), 5000);
-    }
+    $("#player-score").text(0);
+    $("#dealer-score").text(0);
+    initialDealerCards = [];
+    initialPlayerCards = [];   
+    openBetModal();
   });
 }
 
+// Animates coins
 function animateBalanceChange(amount) {
     const balanceElement = document.getElementById("balance");
     let currentBalance = parseInt(balanceElement.innerText);
@@ -424,6 +423,7 @@ function animateBalanceChange(amount) {
     }, 1200);
 }
 
+// Function to animate bet counter
 function animateBet(target) {
     const betElement = document.getElementById("bet");
     let currentBet = parseInt(betElement.innerText);
@@ -440,4 +440,53 @@ function animateBet(target) {
             }
         }, 50);
     }, 1200);
+}
+
+// Display modal
+function openBetModal() {
+    $("#betModal").show();
+}
+
+// Submits bet and starts the game
+function submitBet() {
+    var betValue = parseInt($("#betAmountInput").val());
+    if (isNaN(betValue) || betValue <= 0) {
+        alert("Please enter a valid bet amount!");
+        return;
+    }
+
+    // Post the bet to the server 
+    $.post("/set_bet", { bet: betValue }, function(data) {
+        if (data.success) {
+            // Close modal and start dealing after the server sets up the game
+            $("#betModal").hide();
+            bet_amount = data.bet;
+            amount = data.amount;
+            showFlashMessage(data.message, 'success')
+            dealInitialCards(data.player_cards, data.dealer_cards);
+            animateBalanceChange(amount);
+            animateBet(bet_amount);
+            if (calculateHandValue(initialPlayerCards) == 21) {
+              setTimeout(() => stand(), 5000);
+            }
+        } else {
+            showFlashMessage(data.message, 'error')
+        }
+    });
+}
+
+
+function showFlashMessage(message, category) {
+  const $newFlash = $(
+    `<div class="flash-message ${category}">${message}</div>`
+  );
+
+  $(".flash-messages").append($newFlash);
+
+  // Auto-fade and remove after 3 seconds
+  setTimeout(() => {
+    $newFlash.fadeOut(500, () => {
+      $newFlash.remove();
+    });
+  }, 3000);
 }
