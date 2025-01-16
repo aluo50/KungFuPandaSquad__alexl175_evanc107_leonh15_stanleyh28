@@ -1,6 +1,6 @@
 <!--
 Alex Luo, Evan Chan, Leon Huang, Stanley Hoo
-KungFuPandaSquad 
+KungFuPandaSquad
 SoftDev
 P02: Makers Makin' It, Act I
 2025-1-9
@@ -31,8 +31,10 @@ Time spent: x
 
     <nav class="navbar">
         <ul>
-            <li><a href="{{ url_for('home') }}">Home</a></li>
-            <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="{{ url_for('plinko') }}">Plinko</a></li>
+          <li><a href="{{ url_for('mines') }}">Mines</a></li>
+          <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
             {% if username %}
             <li class="logout-button">
                 <form action="{{ url_for('logout') }}" method="POST">
@@ -66,4 +68,3 @@ Time spent: x
 
     </body>
 </html>
-

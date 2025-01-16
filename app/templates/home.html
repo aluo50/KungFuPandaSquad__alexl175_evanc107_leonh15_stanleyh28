@@ -1,6 +1,6 @@
 <!--
 Alex Luo, Evan Chan, Leon Huang, Stanley Hoo
-KungFuPandaSquad 
+KungFuPandaSquad
 SoftDev
 P02: Makers Makin' It, Act I
 2025-1-9
@@ -31,8 +31,10 @@ Time spent: x
 
     <nav class="navbar">
         <ul>
-            <li><a href="{{ url_for('home') }}">Home</a></li>
-            <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="{{ url_for('plinko') }}">Plinko</a></li>
+          <li><a href="{{ url_for('mines') }}">Mines</a></li>
+          <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
             {% if username %}
             <li class="logout-button">
                 <form action="{{ url_for('logout') }}" method="POST">
@@ -42,9 +44,9 @@ Time spent: x
             {% endif %}
         </ul>
     </nav>
-    
+
     <h1 class="home-title">Steak Co.</h1>
-        
+
 
     {% if username %}
         <h2 class="home-subtitle">Welcome back, {{ username }}!</h2>
@@ -107,7 +109,7 @@ Time spent: x
             <p class="transactions-label">No transactions yet</p>
         {% endif %}
         </div>
-        
+
 
     {% else %}
         <h2 class="home-subtitle">Welcome to Steak Co.</h2>
@@ -118,8 +120,7 @@ Time spent: x
         <div class="placeholder-container">
             <img src="{{ url_for('static', filename='images/flagForSite.jpg') }}" class="teamflag"/>
         </div>
-        
+
     {% endif %}
     </body>
 </html>
-
