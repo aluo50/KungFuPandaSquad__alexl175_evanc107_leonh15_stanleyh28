@@ -33,6 +33,13 @@ Time spent: x
         <ul>
             <li><a href="{{ url_for('home') }}">Home</a></li>
             <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
+            {% if username %}
+            <li class="logout-button">
+                <form action="{{ url_for('logout') }}" method="POST">
+                    <button type="submit">Logout</button>
+                </form>
+            </li>
+            {% endif %}
         </ul>
     </nav>
     
@@ -92,18 +99,16 @@ Time spent: x
             <p class="transactions-label ">no transactions yet</p>
         {% endif %}
         </div>
-
-        <div class="logout-container">
-            <form action="{{ url_for('logout') }}" method="POST">
-                <button type="submit">Logout</button>
-            </form>
-        </div>
+        
 
     {% else %}
         <h2 class="home-subtitle">Welcome to Steak Co.</h2>
         <p class="home-paragraph">Please login or register to play.</p>
         <div class="login-register-container">
             <a href="{{ url_for('login') }}"><button class="btn-login-register">Go to Login</button></a>
+        </div>
+        <div class="placeholder-container">
+            <img src="{{ url_for('static', filename='images/flagForSite.jpg') }}" class="teamflag"/>
         </div>
         
     {% endif %}
