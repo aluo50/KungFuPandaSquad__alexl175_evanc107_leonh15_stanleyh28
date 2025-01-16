@@ -51,6 +51,15 @@ Time spent: x -->
       {% endif %}
     </header>
 
+  <!-- Bet Submission Modal -->
+  <div id="betModal" class="modal">
+      <div class="modal-content">
+          <h2>Place Your Bet</h2>
+          <input type="number" id="betAmountInput" min="1" max="{{ balance }}" placeholder="ex: 1000" />
+          <button onclick="submitBet()">Submit Bet</button>
+      </div>
+  </div>
+    
   <!-- Main table area -->
   <div class="table-background">
     <!-- Deck in center -->

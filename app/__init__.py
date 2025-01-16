@@ -331,7 +331,6 @@ def leaderboard():
 
 @app.route("/history", methods=["POST"])
 def history():
-    def leaderboard():
     if "username" in session:
         user_info = database.get_user(session["username"])
         balance = user_info["balance"]
