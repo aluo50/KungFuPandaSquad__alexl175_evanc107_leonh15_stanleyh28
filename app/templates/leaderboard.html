@@ -1,0 +1,34 @@
+<!--
+Alex Luo, Evan Chan, Leon Huang, Stanley Hoo
+KungFuPandaSquad 
+SoftDev
+P02: Makers Makin' It, Act I
+2025-1-9
+Time spent: x
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Steak Co. Leaderboard</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+    <body>
+
+    <header>
+        <!-- Allows flashing messages in the html -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </header>
+   =
+    </body>
+</html>
+

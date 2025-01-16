@@ -11,7 +11,7 @@ import os
 import database
 import json
 import pandas as pd
-from database import save_blackjack, load_blackjack, update_balance, login_user, add_user, get_user, add_blackjack_user
+from database import save_blackjack, load_blackjack, update_balance, login_user, add_user, get_user, add_blackjack_user, get_transaction_history
 from games.blackjack import (
     calculate_hand_value,
     initialize_game,
@@ -36,7 +36,10 @@ def home():
         user_info = database.get_user(session["username"])
         balance = user_info["balance"]
         session['balance'] = balance
-        return render_template("home.html", username=session["username"], balance=balance)
+
+        transactions = get_transaction_history(user_info["user_id"])
+
+        return render_template("home.html", username=session["username"], balance=balance, transactions=transactions)
     else:
         return render_template("home.html", username=None, balance=None)
 
@@ -319,28 +322,10 @@ def mines_cashout():
 
     return jsonify({"message": "Cashed out successfully.","balance": new_balance,"accumulated": session['accumulated']})
 
-@app.route("/leaderboard", methods=["POST"])
-def leaderboard():
-    if "username" in session:
-        user_info = database.get_user(session["username"])
-        balance = user_info["balance"]
-        session['balance'] = balance
-        return render_template("home.html", username=session["username"], balance=balance)
-    else:
-        return render_template("home.html", username=None, balance=None)
-
-@app.route("/history", methods=["POST"])
-def history():
-    def leaderboard():
-    if "username" in session:
-        user_info = database.get_user(session["username"])
-        balance = user_info["balance"]
-        session['balance'] = balance
-        return render_template("history.html", username=session["username"], balance=balance)
-    else:
-        return render_template("history.html", username=None, balance=None)
-
-    
-
+@app.route("/leaderboard", methods=["GET"])
+def show_leaderboard():
+    results = get_leaderboard()
+    return render_template("leaderboard.html", leaderboard=results)
+ 
 if __name__ == "__main__":
     app.run(debug=True)

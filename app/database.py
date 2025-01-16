@@ -156,4 +156,25 @@ def add_blackjack_user(user_id):
     cur.execute("INSERT INTO blackjack_in_progress (user_id, bet_amount, player_hand, dealer_hand, game_over) VALUES (?, ?, ?, ?, ?)", (user_id, 0, json.dumps([]), json.dumps([]), 0))
     conn.commit()
     conn.close()
-    
+
+def get_leaderboard():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT username, balance FROM users ORDER BY balance DESC;")
+    results = cur.fetchall()
+    conn.close()
+    return results
+
+def get_transaction_history(user_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT game, change, new_balance
+        FROM transactions
+        WHERE user_id = ?
+        ORDER by transaction_id DESC
+    """, (user_id,)
+    )
+    rows=cur.fetchall()
+    conn.close()
+    return rows
