@@ -4,7 +4,7 @@ KungFuPandaSquad
 SoftDev
 P02: Makers Makin' It, Act I
 2025-1-9
-Time spent: x
+Time spent: 51
 -->
 
 <!DOCTYPE html>
@@ -15,116 +15,127 @@ Time spent: x
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     </head>
     <body>
-
-    <header>
-        <!-- Allows flashing messages in the html -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages">
-                {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">{{ message }}</div>
-                {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-    </header>
-
-    <nav class="navbar">
-      <ul>
-        <li><a href="{{ url_for('home') }}">Home🏠</a></li>
-        <li class="dropdown">
-          <a href="javascript:void(0)" class="dropbtn">Games🎮▼</a>
-          <ul class="dropdown-content">
-            <li><a href="{{ url_for('play_blackjack') }}">Blackjack <img src="{{ url_for('static', filename='images/blackjack.png') }}" class=blackjack-icon></a></li>
-            <li><a href="{{ url_for('plinko') }}">Plinko🎲</a></li>
-            <li><a href="{{ url_for('mines') }}">Mines💣</a></li>
-          </ul>
-        </li>
-        <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard🏆</a></li>
-        {% if username %}
-          <div class="welcome-container">
-            <span class="welcome-message">Welcome, {{ username }}!</span>
-            <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
-          </div>
-        {% endif %}
-      </ul>
-    </nav>
-
-    <h1 class="home-title">Steak Co.</h1>
-
-
-    {% if username %}
-        <p class="home-paragraph">Your current balance is: <strong>{{ balance }}</strong></p>
-
-        <div class="game-buttons-container">
-            <a href="{{ url_for('play_blackjack') }}" class="game-link">
-                <div class="game-button">
-                    <img src="{{ url_for('static', filename='images/blackjackbutton.png') }}" class="game-icon"/>
-
-                </div>
-            </a>
-            <a href="{{ url_for('plinko') }}" class="game-link">
-                <div class="game-button">
-                    <img src="{{ url_for('static', filename='images/plinkobutton.png') }}" class="game-icon"/>
-                </div>
-            </a>
-            <a href="{{ url_for('mines') }}" class="game-link">
-                <div class="game-button">
-                    <img src="{{ url_for('static', filename='images/minesbutton.png') }}" class="game-icon"/>
-
-                </div>
-            </a>
-        </div>
-
-        <div class="placeholder-container">
-            <img src="{{ url_for('static', filename='images/flagForSite.jpg') }}" class="teamflag"/>
-        </div>
-
-        <center><h2 class="transactions-label">Transaction History</h2><center>
-        <div class="transaction-table-container">
-        {% if transactions %}
-            <table class="transaction-table">
-                <thead>
-                    <tr>
-                        <th>Game</th>
-                        <th>Change</th>
-                        <th>New Balance</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for t in transactions %}
-                        <tr>
-                            <td>{{ t['game'] }}</td>
-                            <td>
-                                {% if t['change'] > 0 %}
-                                    <span class="change-positive">+{{ t['change'] }}</span>
-                                {% elif t['change'] < 0 %}
-                                    <span class="change-negative">{{ t['change'] }}</span>
-                                {% else %}
-                                    <span class="change-neutral">0</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ t['new_balance'] }}</td>
-                        </tr>
+        <header>
+            <!-- Allows flashing messages in the html -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
                     {% endfor %}
-                </tbody>
-            </table>
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </header>
+
+        <!-- Navbar -->
+        <nav class="navbar">
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home🏠</a></li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">Games🎮▼</a>
+                    <!-- Dropdown -->
+                    <ul class="dropdown-content">
+                        <li><a href="{{ url_for('play_blackjack') }}">Blackjack <img src="{{ url_for('static', filename='images/blackjack.png') }}" class=blackjack-icon></a></li>
+                        <li><a href="{{ url_for('plinko') }}">Plinko🎲</a></li>
+                        <li><a href="{{ url_for('mines') }}">Mines💣</a></li>
+                    </ul>
+                </li>
+                <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard🏆</a></li>
+
+                <!-- Username and signout button is signed in -->
+                {% if username %}
+                    <div class="welcome-container">
+                        <span class="welcome-message">Welcome, {{ username }}!</span>
+                        <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
+                    </div>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <h1 class="home-title">Steak Co.</h1>
+
+        <!-- If signed in will display balance, games, and transactions -->
+        {% if username %}
+            <p class="home-paragraph">Your current balance is: <strong>{{ balance }}</strong></p>
+
+            <!-- Games icons with route to games -->
+            <div class="game-buttons-container">
+                <!-- Blackjack -->
+                <a href="{{ url_for('play_blackjack') }}" class="game-link">
+                    <div class="game-button">
+                        <img src="{{ url_for('static', filename='images/blackjackbutton.png') }}" class="game-icon"/>
+
+                    </div>
+                </a>
+                <!-- Plinko -->
+                <a href="{{ url_for('plinko') }}" class="game-link">
+                    <div class="game-button">
+                        <img src="{{ url_for('static', filename='images/plinkobutton.png') }}" class="game-icon"/>
+                    </div>
+                </a>
+                <!-- Mines -->
+                <a href="{{ url_for('mines') }}" class="game-link">
+                    <div class="game-button">
+                        <img src="{{ url_for('static', filename='images/minesbutton.png') }}" class="game-icon"/>
+
+                    </div>
+                </a>
+            </div>
+
+            <!-- Team flag -->
+            <div class="placeholder-container">
+                <img src="{{ url_for('static', filename='images/flagForSite.jpg') }}" class="teamflag"/>
+            </div>
+
+            <!-- Transactions table if there are transactions -->
+            <center><h2 class="transactions-label">Transaction History</h2><center>
+            <div class="transaction-table-container">
+            {% if transactions %}
+                <table class="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Game</th>
+                            <th>Change</th>
+                            <th>New Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transactions %}
+                            <tr>
+                                <td>{{ t['game'] }}</td>
+                                <td>
+                                    <!-- Styles the change with colors -->
+                                    {% if t['change'] > 0 %}
+                                        <span class="change-positive">+{{ t['change'] }}</span>
+                                    {% elif t['change'] < 0 %}
+                                        <span class="change-negative">{{ t['change'] }}</span>
+                                    {% else %}
+                                        <span class="change-neutral">0</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ t['new_balance'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="transactions-label">No transactions yet</p>
+            {% endif %}
+            </div>
+
+
+        <!-- For users not logged in -->
         {% else %}
-            <p class="transactions-label">No transactions yet</p>
+            <h2 class="home-subtitle">Welcome to Steak Co.</h2>
+            <p class="home-paragraph">Please login or register to play.</p>
+            <div class="login-register-container">
+                <a href="{{ url_for('login') }}"><button class="btn-login-register">Go to Login</button></a>
+            </div>
+            <div class="placeholder-container">
+                <img src="{{ url_for('static', filename='images/flagForSite.jpg') }}" class="teamflag"/>
+            </div>
+
         {% endif %}
-        </div>
-
-
-    {% else %}
-        <h2 class="home-subtitle">Welcome to Steak Co.</h2>
-        <p class="home-paragraph">Please login or register to play.</p>
-        <div class="login-register-container">
-            <a href="{{ url_for('login') }}"><button class="btn-login-register">Go to Login</button></a>
-        </div>
-        <div class="placeholder-container">
-            <img src="{{ url_for('static', filename='images/flagForSite.jpg') }}" class="teamflag"/>
-        </div>
-
-    {% endif %}
     </body>
 </html>

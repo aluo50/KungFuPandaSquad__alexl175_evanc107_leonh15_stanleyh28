@@ -3,28 +3,29 @@ KungFuPandaSquad
 SoftDev
 P02: Makers Makin' It, Act I
 2025-1-9
-Time spent: x -->
+Time spent: 51 -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Steak Co. Blackjack</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta charset="UTF-8" />
+    <title>Steak Co. Blackjack</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-  <script>
-    var initialPlayerCards = {{ player_cards | tojson }};
-    var initialDealerCards = {{ dealer_cards | tojson }};
-    var game_over = {% if game_over == 1 %} true {% else %} false {% endif %};
-    var balance = {{ balance | tojson }};
-  </script>
+    <!-- Initial variables for the js -->
+    <script>
+        var initialPlayerCards = {{ player_cards | tojson }};
+        var initialDealerCards = {{ dealer_cards | tojson }};
+        var game_over = {% if game_over == 1 %} true {% else %} false {% endif %};
+        var balance = {{ balance | tojson }};
+    </script>
 
-  <!-- Our Blackjack logic -->
-  <script src="{{ url_for('static', filename='js/blackjack.js') }}"></script>
+    <!-- Our Blackjack logic -->
+    <script src="{{ url_for('static', filename='js/blackjack.js') }}"></script>
 </head>
 <body class="{{ body_class }}">
-  <header>
+    <header>
         <!-- Allows flashing messages in the html -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -35,84 +36,90 @@ Time spent: x -->
                 </div>
             {% endif %}
         {% endwith %}
-      {% if session['username'] %}
-        <div class="player-info">
-            <div class="balance-info">
-                Balance: <span id="balance">{{ balance }}</span><img src="{{ url_for('static', filename='images/coin.png') }}" alt="Coin Icon" class="coin-icon">
+        
+        <!-- Balance and bet amount if user logged in -->
+        {% if session['username'] %}
+            <div class="player-info">
+                <div class="balance-info">
+                    Balance: <span id="balance">{{ balance }}</span><img src="{{ url_for('static', filename='images/coin.png') }}" alt="Coin Icon" class="coin-icon">
+                </div>
+                <div class="bet-info">
+                    Bet Amount: <span id="bet">{{ bet }}</span><img src="{{ url_for('static', filename='images/coin.png') }}" alt="Coin Icon" class="coin-icon">
+                </div>
             </div>
-            <div class="bet-info">
-                Bet Amount: <span id="bet">{{ bet }}</span><img src="{{ url_for('static', filename='images/coin.png') }}" alt="Coin Icon" class="coin-icon">
-            </div>
-        </div>
-      {% endif %}
-    </header>
-  
-    <nav class="navbar">
-      <ul>
-        <li><a href="{{ url_for('home') }}">Home🏠</a></li>
-        <li class="dropdown">
-          <a href="javascript:void(0)" class="dropbtn">Games🎮▼</a>
-          <ul class="dropdown-content">
-            <li><a href="{{ url_for('play_blackjack') }}">Blackjack <img src="{{ url_for('static', filename='images/blackjack.png') }}" class=blackjack-icon></a></li>
-            <li><a href="{{ url_for('plinko') }}">Plinko🎲</a></li>
-            <li><a href="{{ url_for('mines') }}">Mines💣</a></li>
-          </ul>
-        </li>
-        <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard🏆</a></li>
-        {% if username %}
-          <div class="welcome-container">
-            <span class="welcome-message">Welcome, {{ username }}!</span>
-            <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
-          </div>
         {% endif %}
-      </ul>
+    </header>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home🏠</a></li>
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropbtn">Games🎮▼</a>
+                <!-- Dropdown -->
+                <ul class="dropdown-content">
+                    <li><a href="{{ url_for('play_blackjack') }}">Blackjack <img src="{{ url_for('static', filename='images/blackjack.png') }}" class=blackjack-icon></a></li>
+                    <li><a href="{{ url_for('plinko') }}">Plinko🎲</a></li>
+                    <li><a href="{{ url_for('mines') }}">Mines💣</a></li>
+                </ul>
+            </li>
+            <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard🏆</a></li>
+            
+            <!-- Username and signout button is signed in -->
+            {% if username %}
+                <div class="welcome-container">
+                    <span class="welcome-message">Welcome, {{ username }}!</span>
+                    <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
+                </div>
+            {% endif %}
+        </ul>
     </nav>
 
-  <!-- Bet Submission Modal -->
-  <div id="betModal" class="modal">
-      <div class="modal-content">
-          <h2>Place Your Bet</h2>
-          <input type="number" id="betAmountInput" min="1" max="{{ balance }}" placeholder="ex: 1000" />
-          <button onclick="submitBet()">Submit Bet</button>
-          <button onclick="allIn()">All In</button>
-      </div>
-  </div>
+    <!-- Bet Submission Modal -->
+    <div id="betModal" class="modal">
+        <div class="modal-content">
+            <h2>Place Your Bet</h2>
+            <input type="number" id="betAmountInput" min="1" max="{{ balance }}" placeholder="ex: 1000" />
+            <button onclick="submitBet()">Submit Bet</button>
+            <button onclick="allIn()">All In</button>
+        </div>
+    </div>
     
-  <!-- Main table area -->
-  <div class="table-background">
-    <!-- Deck in center -->
-    <div id="deck">
-      <div class="card back"></div>
+    <!-- Main table area -->
+    <div class="table-background">
+        <!-- Deck in center -->
+        <div id="deck">
+            <div class="card back"></div>
+        </div>
+
+        <!-- Dealer area -->
+        <div id="dealer-area">
+            <h2>Dealer Score: <span id="dealer-score">0</span></h2>
+            <h2>Dealer's Cards</h2>
+            <div class="dealer-cards" id="dealer-cards"></div>
+        </div>
+
+        <!-- Player area -->
+        <div id="player-area">
+            <h2>Player Score: <span id="player-score">0</span></h2>
+            <h2>Player's Cards</h2>
+            <div class="player-cards" id="player-cards"></div>
+
+            <!-- Action buttons -->
+            <div class="action-buttons">
+                <button onclick="hit()">Hit</button>
+                <button onclick="stand()">Stand</button>
+                <button onclick="doubleDown()">Double Down</button>
+            </div>
+
+            <h3 id="result-message"></h3>
+        </div>
     </div>
 
-    <!-- Dealer area -->
-    <div id="dealer-area">
-      <h2>Dealer Score: <span id="dealer-score">0</span></h2>
-      <h2>Dealer's Cards</h2>
-      <div class="dealer-cards" id="dealer-cards"></div>
+    <!-- End screen overlay -->
+    <div id="end-screen">
+        <p id="final-result"></p>
+        <button onclick="playAgain()">Play Again</button>
     </div>
-
-    <!-- Player area -->
-    <div id="player-area">
-      <h2>Player Score: <span id="player-score">0</span></h2>
-      <h2>Player's Cards</h2>
-      <div class="player-cards" id="player-cards"></div>
-
-      <!-- Action buttons -->
-      <div class="action-buttons">
-        <button onclick="hit()">Hit</button>
-        <button onclick="stand()">Stand</button>
-        <button onclick="doubleDown()">Double Down</button>
-      </div>
-
-      <h3 id="result-message"></h3>
-    </div>
-  </div>
-
-  <!-- End screen overlay -->
-  <div id="end-screen">
-    <p id="final-result"></p>
-    <button onclick="playAgain()">Play Again</button>
-  </div>
 </body>
 </html>

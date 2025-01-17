@@ -3,7 +3,7 @@
 // SoftDev
 // P02: Makers Makin' It, Act I
 // 2025-1-9
-// Time spent: 55
+// Time spent: 51
 
 // On load, if in middle of game continue or else open up bet modal
 $(document).ready(function () {

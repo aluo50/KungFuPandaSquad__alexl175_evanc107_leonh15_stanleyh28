@@ -109,3 +109,7 @@ stanleyH - 2025-1-16 19:43
  - added styling
  - added all in button
  - highlights position on leaderboard
+
+stanleyH - 2025-1-16 22:48
+ - updated design doc
+ - changed routes/databases format along with distribution of work

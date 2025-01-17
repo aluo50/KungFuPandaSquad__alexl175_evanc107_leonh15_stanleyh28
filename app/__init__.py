@@ -3,7 +3,7 @@
 # SoftDev
 # P02: Makers Makin' It, Act I
 # 2025-1-9
-# Time spent: x
+# Time spent: 51
 
 from flask import Flask, request, render_template, redirect, url_for, flash, session, jsonify
 import sqlite3

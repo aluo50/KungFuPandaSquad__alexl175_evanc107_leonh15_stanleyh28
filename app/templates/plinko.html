@@ -4,7 +4,7 @@ KungFuPandaSquad
 SoftDev
 P02: Makers Makin' It, Act I
 2025-1-9
-Time spent: x
+Time spent: 51
 -->
 
 <!DOCTYPE html>
@@ -30,609 +30,611 @@ Time spent: x
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"> 
     </head>
   
-  <body onload = "startGame()">
-    <nav class="navbar">
-      <ul>
-        <li><a href="{{ url_for('home') }}">Home🏠</a></li>
-        <li class="dropdown">
-          <a href="javascript:void(0)" class="dropbtn">Games🎮▼</a>
-          <ul class="dropdown-content">
-            <li><a href="{{ url_for('play_blackjack') }}">Blackjack <img src="{{ url_for('static', filename='images/blackjack.png') }}" class=blackjack-icon></a></li>
-            <li><a href="{{ url_for('plinko') }}">Plinko🎲</a></li>
-            <li><a href="{{ url_for('mines') }}">Mines💣</a></li>
-          </ul>
-        </li>
-        <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard🏆</a></li>
-        {% if username %}
-          <div class="welcome-container">
-            <span class="welcome-message">Welcome, {{ username }}!</span>
-            <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
-          </div>
-        {% endif %}
-      </ul>
-    </nav>
-
-    <div style="position: fixed; top: 80px; right: 20px; font-size: 24px; color: #000;">
-      Balance: <span id="balance-value">{{ balance }}</span>
-    </div>
-
-    <script>
-
-      //logistic chaos
-      let logisticR = 4.0;
-
-      function logisticMap(r,x){
-        return r*x*(1-x);
-      } //gets next value in chaotic sequence
-
-      function applyLogisticChaos(ball){
-        let maxSpeed = 10;
-        let normalized = (ball.speed[0]+maxSpeed) / (2*maxSpeed);
-        if (normalized < 0) normalized = 0;
-        if (normalized > 1) normalized = 1;
-
-        let newNormalized = logisticMap(logisticR, normalized);
-        ball.speed[0] = newNormalized * 2 * maxSpeed - maxSpeed;
-      }  // takes ball's horizontal speed and normalizes it, then applies logistic formula to get a new 0-1 value
-
-      function rotateVector(vec, theta) {
-        const cosT = Math.cos(theta);
-        const sinT = Math.sin(theta);
-
-        const x = vec[0] * cosT - vec[1] * sinT;
-        const y = vec[0] * sinT + vec[1] * cosT;
-
-        return [x, y];
-      } // rotates a given vector by angle
-
-      function randomAngle(maxDeg) {
-        const maxRad = (maxDeg * Math.PI) / 180;
-        return (Math.random() * 2 - 1) * maxRad;
-      } // generates a random angle
-
-      //financials
-      var creditcardinfo;
-      var balance;
-
-      //balls
-      var ballSize;
-      var balls; // array of balls
-
-      //boardsetup
-      var rows; // 8 - 16
-      var risk; // low/med/high
-      var pegSize;
-      var grid;
-
-      //physics
-      var gravity; // downward force
-      var bouncyness; // how bouncy pegs are
-
-      //gameworks
-      var bWidth;
-      var bHeight;
-      var cWidth;
-      var cHeight;
-
-      var running;
-
-      // dictionaries multiplers per (row, risk)
-      const multipliers = {
-        8: {
-          "low":    ["5.6","2.5","1.1","1","0.5","1","1.1","2.1","5.6"],
-          "medium": ["13","3","1.3","0.7","0.4","0.7","1.3","3","13"],
-          "high":   ["29","4","1.5","0.3","0.2","0.3","1.5","4","29"]
-        },
-        12: {
-          "low":    ["10","3","1.6","1.4","1.1","1","0.5","1","1.4","1.6","3","10"],
-          "medium": ["33","11","4","2","1.1","0.6","0.3","0.6","1.1","2","4","11","33"],
-          "high":   ["170","24","8.1","2","0.7","0.2","0.2","0.2","0.7","2","8.1","24","170"]
-        },
-        16: {
-          "low":    ["16","9","2","1.4","1.4","1.2","1.1","1","0.5","1","1.1","1.2","1.4","1.4","2","9","16"],
-          "medium": ["110","41","10","5","3","1.5","1","0.5","0.3","0.5","1","1.5","3","5","10","41","110"],
-          "high":   ["1080","130","26","9","4","2","0.2","0.2","0.2","0.2","0.2","2","4","9","26","130","1080"]
-        }
-      };
-
-      function startGame(){
-        // balance = {{bal}};
-        balance = 100000;
-
-        bWidth = window.innerWidth;
-        bHeight = window.innerHeight;
-        cWidth = (1440/2160)*bWidth;
-        cHeight = (640/1440)*cWidth;
-
-        balls = [];
-
-        rows = 16;
-        risk = "low";
-        createGrid();
-        gravity = [0,0.35];
-        bouncyness = 1.15;
-
-        running = false;
-
-        createGrid();
-        board.start();
-      }//startGame
-        
-      var board = {
-        canvas : document.createElement("canvas"),
-        start : function() {
-            this.canvas.width = cWidth;
-            this.canvas.height = cHeight;
-            this.canvas.style.position = "absolute";
-            this.canvas.style.top = "100px"; // Adjust this value to move the canvas lower
-            this.canvas.style.left = "0";
-            this.canvas.style.right = "0";
-            this.canvas.style.margin = "auto";
-            this.context = this.canvas.getContext("2d");
-            document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-            this.frameNo = 0;
-            this.interval = setInterval(updateGameArea, 20);
-            this.canvas.addEventListener('click', onCanvasClick);
-        },
-        clear : function() {
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        }
-      }; //initalizes game grid and variables
-
-      function onCanvasClick(event) {
-        let posMouse = getMousePos(board.canvas, event);
-        let side2side = [0, (5/16)*cWidth];
-        let rowsBtnRect = { x: cWidth/80,y: (4.5/12)*cHeight,w: side2side[1]-(2/80)*cWidth, h: cHeight/14 };
-        let riskBtnRect = { x: cWidth/80,y: (6/12)*cHeight - 20,w: side2side[1]-(2/80)*cWidth, h: cHeight/14 };
-        let dropBtnRect = { x: cWidth/80,y: (7/12)*cHeight,w: side2side[1]-(2/80)*cWidth, h: cHeight/12 };
-        let homeBtnRect = { x: cWidth/80,y: (5/12)*cHeight - cHeight/12 - 20,w: side2side[1]-(2/80)*cWidth, h: cHeight/14 };
-
-        function inRect(rect) {
-          return (posMouse[0] >= rect.x && posMouse[0] <= rect.x + rect.w && posMouse[1] >= rect.y && posMouse[1] <= rect.y + rect.h);
-        }
-
-        if (inRect(rowsBtnRect)) {
-        // cycle rows
-          let rowCycle = [8, 12, 16];
-          let ind = rowCycle.indexOf(rows);
-          rows = rowCycle[(ind+ 1) % rowCycle.length];
-          createGrid();
-        }
-        else if (inRect(riskBtnRect)) {
-        // cycle risk
-          let riskCycle = ["low","medium","high"];
-          let idx = riskCycle.indexOf(risk);
-          risk = riskCycle[(idx + 1) % riskCycle.length];
-        }
-        else if (inRect(dropBtnRect)){
-          fetch("/plinko_drop", { method: "POST" })
-            .then(response => response.json())
-            .then(data => {
-              if (data.balance !== undefined) {
-                document.getElementById("balance-value").textContent = data.balance;
-              }
-              spawnBall(1);
-          })
-        }
-
-        else if (inRect(homeBtnRect)){
-          window.location.href="/";
-        }
-      } // handles user interactions with canvas
-
-
-      function updateGameArea(){
-        bWidth = window.innerWidth;
-        bHeight = window.innerHeight;
-        cWidth = (1440/2160)*bWidth;
-        cHeight = (640/1440)*cWidth;
-
-        createGrid();
-
-        for (let i = balls.length - 1; i >= 0; i--) {
-          if(balls[i]!=null){
-            balls[i].apply(gravity);
-            balls[i].run();
-          }
-        }
-
-        for(let i = 0; i < grid.length; i++){
-          for(let n = 0; n < grid[i].length; n++){
-            grid[i][n].bounceEm();
-          }
-        }
-
-        displayEverything();
-      }//updateGameArea
-
-      function displayEverything(){
-        //makes the rounded rectangular canvas
-        board.clear();
-        board.frameNo+=1;
-        board.context.fillStyle = "#0f1728";
-        board.context.beginPath();
-        board.context.roundRect(0,0,cWidth,cHeight,1/40*cHeight);
-        board.context.fill();
-        board.context.globalAlpha = 0;
-        board.context.stroke();
-        board.context.globalAlpha = 1;
-
-        //display balls
-        for (let i = balls.length - 1; i >= 0; i--) {
-          if(balls[i]!=null){
-            balls[i].display();
-          }
-        }
-
-        //display pegs
-        for(let i = 0; i < grid.length; i++){
-          for(let n = 0; n < grid[i].length; n++){
-            grid[i][n].display();
-          }
-        }
-
-        //other stuff
-        displayMults();
-        displayUI();
-      } // renders visual components of the game
-
-      function displayMults(){
-        let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
-        let xPadding = (side2side[1]-side2side[0])/(rows);
-        let padding = pegSize*(3/4);
-        const ctx = board.context;
-
-        let rWidth = xPadding-(2*padding);
-        let rHeight = (.9/16)*cHeight;
-
-        let red = [255,0,63];
-        let yellow = [255,192,0];
-        let redShadow = [120,23,46];
-        let yellowShadow = [120,96,22];
-
-        let halfPt = (rows+1)/2;
-
-        let rowKey = String(rows);
-        let riskKey = risk;
-        let arr = multipliers[rowKey][riskKey];
-
-        for(let i = 0;i < arr.length; i++){
-          ctx.fillStyle = yellowShadow;
-          if(i<halfPt){
-            ctx.fillStyle = lerpColor(redShadow, yellowShadow,i/halfPt);
-          }
-          else if(i>halfPt){
-            ctx.fillStyle = lerpColor(yellowShadow, redShadow,(i-halfPt+.5)/halfPt);
-          }
-          ctx.beginPath();
-          ctx.roundRect(side2side[0]+padding+((rWidth+(2*padding))*i),(29.4/32)*cHeight,rWidth,rHeight,.25/32*cHeight);
-          ctx.fill();
-          ctx.globalAlpha = 0;
-          ctx.strokeStyle = "#0f1728";
-          ctx.stroke();
-          ctx.globalAlpha = 1;
-
-          ctx.fillStyle = yellow;
-          if(i<halfPt){
-            ctx.fillStyle = lerpColor(red, yellow,i/halfPt);
-          }
-          else if(i>halfPt){
-            ctx.fillStyle = lerpColor(yellow, red,(i-halfPt+.5)/halfPt);
-          }
-          ctx.beginPath();
-          ctx.roundRect(side2side[0]+padding+(rWidth+2*padding)*i,(29.2/32)*cHeight,rWidth,rHeight,.25/32*cHeight);
-          ctx.fill();
-          ctx.globalAlpha = 0;
-          ctx.strokeStyle = "#0f1728";
-          ctx.stroke();
-          ctx.globalAlpha = 1;
-
-          ctx.fillStyle = "#000000";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.font = "bold 14px sans-serif";
-          let centerX = side2side[0]+padding+(rWidth+2*padding)*i+rWidth/2;
-          let centerY = (29.3/32) * cHeight + rHeight / 2;
-          ctx.fillText("x" + arr[i], centerX, centerY);
-        }
-      }//displayMults
-
-      function displayUI(){
-        let side2side = [0,(5/16)*cWidth]
-        const ctx = board.context;
-        let prop = 1440/2160;
-
-        //grey half box
-        ctx.fillStyle ="#334155";
-        ctx.beginPath();
-        ctx.roundRect(0,0,side2side[1],cHeight,1/40*cHeight);
-        ctx.rect(side2side[1]/2,0,side2side[1]/2,cHeight);
-        ctx.fill();
-        ctx.globalAlpha = 0;
-        ctx.strokeStyle = "#0f1728";
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-
-        //green drop ball buttons
-        ctx.fillStyle = "#22c55e";
-        ctx.beginPath();
-        ctx.roundRect((1/80)*cWidth,(7/12)*cHeight,side2side[1]-((2/80)*cWidth),cHeight/12,1/40*cHeight);
-        ctx.fill();
-        ctx.globalAlpha = 0;
-        ctx.strokeStyle = "#0f1728";
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "#0f1728";
-        ctx.font = `400 ${24*prop}px 'Calibri', sans-serif`;
-        ctx.fillText("Drop Ball", (1/20)*cWidth+(.5*(side2side[1]-((2/20)*cWidth))), ((7/12)*cHeight)+0.5*(cHeight/12));
-
-        // home button 
-        ctx.fillStyle = "#007bff";
-        ctx.beginPath();
-        ctx.roundRect((1 / 80) * cWidth,(5 / 12) * cHeight - cHeight / 12 - 20,side2side[1] - (2 / 80) * cWidth,cHeight / 14,1 / 40 * cHeight);
-        ctx.fill();
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "#ffffff";
-        ctx.font = `400 ${22 * prop}px 'Calibri', sans-serif`;
-        ctx.fillText("Home",(1 / 20) * cWidth + 0.5 * (side2side[1] - (2 / 20) * cWidth),(5 / 12) * cHeight - cHeight / 24 - 20);
-
-        // button for rows
-        let rowsBtnX = (1/80)*cWidth;
-        let rowsBtnY = (4.5/12)*cHeight;
-        let rowsBtnW = side2side[1] - (2/80)*cWidth;
-        let rowsBtnH = cHeight/14;
-        ctx.fillStyle = "#6c757d";
-        ctx.beginPath();
-        ctx.roundRect(rowsBtnX, rowsBtnY, rowsBtnW, rowsBtnH, 1/40*cHeight);
-        ctx.fill();
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "#ffffff";
-        ctx.font = `400 ${22*prop}px 'Calibri', sans-serif`;
-        ctx.fillText(`Rows: ${rows}`, rowsBtnX + rowsBtnW/2, rowsBtnY + rowsBtnH/2);
-
-        // button for risks
-        let riskBtnX = (1/80)*cWidth;
-        let riskBtnY = (6/12)*cHeight - 20;
-        let riskBtnW = side2side[1] - (2/80)*cWidth;
-        let riskBtnH = cHeight/14;
-        ctx.fillStyle = "#6c757d";
-        ctx.beginPath();
-        ctx.roundRect(riskBtnX, riskBtnY, riskBtnW, riskBtnH, 1/40*cHeight);
-        ctx.fill();
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "#ffffff";
-        ctx.font = `400 ${22*prop}px 'Calibri', sans-serif`;
-        ctx.fillText(`Risk: ${risk}`, riskBtnX + riskBtnW/2, riskBtnY + riskBtnH/2);
-
-        ctx.fillStyle = "#6c757d";
-
-      }//displayUI by rendering buttons for rows, risk levels, etc
-
-      function createGrid(){
-        let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
-        let upandbot = [(1/10)*cHeight,(7/8)*cHeight];//bottom and top bounds
-
-        grid = [];
-        grid.length = rows;
-        let yPadding = (upandbot[1]-upandbot[0])/(rows-1);
-        let xPadding = (side2side[1]-side2side[0])/(rows);
-        // console.log(this.padding)
-
-        pegSize = yPadding/10;
-        ballSize = pegSize*2;
-        for(let i = 0; i < grid.length; i++){//per row basis
-          let rw = [];
-          rw.length = i+3;//0th row has 3 pegs, 1st has 4
-          let xOffset = side2side[0]+(xPadding/2) *(rows+2-rw.length);
-          for(let n = 0; n < rw.length; n++){//pegs each row
-              rw[n] = new Peg(xOffset+(xPadding*n),yPadding*(i)+((1/10)*cHeight),pegSize);
-          }
-          grid[i] = rw;
-        }
-      }//createGrid of pegs
-
-      class Peg {
-        pos = [];
-
-        constructor(x,y,sz){
-          this.pos[0] = x;
-          this.pos[1] = y;
-          this.size = sz;
-          this.bounce = bouncyness;
-        }//initializes a peg
-
-        display() {
-          const ctx = board.context;
-          ctx.fillStyle = "#ffffff";
-          ctx.beginPath();
-          ctx.arc(this.pos[0], this.pos[1], this.size, 0, 2 * Math.PI);
-          ctx.fill();
-          ctx.strokeStyle = "#ffffff";
-          ctx.stroke();
-        }//draws the peg 
-
-        bounceEm() {
-          for(let i = 0; i < balls.length; i++){
-            let distance = dist(this.pos[0], this.pos[1], balls[i].pos[0],balls[i].pos[1]);
-            let sumR = pegSize + ballSize;
-            // if ball is overlapping with peg
-            if(distance < sumR){
-              // push it out so it doesn't phase through
-              let overlap = sumR - distance;
-              let dx = balls[i].pos[0] - this.pos[0];
-              let dy = balls[i].pos[1] - this.pos[1];
-              let len = distance;
-              if (len!==0){
-                dx /= len;
-                dy /= len;
-                balls[i].pos[0] += dx * overlap;
-                balls[i].pos[1] += dy * overlap;
-              }
-
-              let direction = [dx,dy];
-              let bForce = [direction[0]*this.bounce, direction[1]*this.bounce*1.5];
-
-              applyLogisticChaos(balls[i]);
-
-              const angle = randomAngle(15); // tweak as needed
-              bForce = rotateVector(bForce, angle);
-
-              balls[i].speed = [balls[i].speed[0]*Math.pow(-1, Math.round(getRandomInt(0,2))),0]
-              balls[i].accel = [0,0];
-              balls[i].apply(bForce);
+    <body onload = "startGame()">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home🏠</a></li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">Games🎮▼</a>
+                    <!-- Dropdown -->
+                    <ul class="dropdown-content">
+                        <li><a href="{{ url_for('play_blackjack') }}">Blackjack <img src="{{ url_for('static', filename='images/blackjack.png') }}" class=blackjack-icon></a></li>
+                        <li><a href="{{ url_for('plinko') }}">Plinko🎲</a></li>
+                        <li><a href="{{ url_for('mines') }}">Mines💣</a></li>
+                    </ul>
+                </li>
+                <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard🏆</a></li>
+
+                <!-- Username and signout button is signed in -->
+                {% if username %}
+                    <div class="welcome-container">
+                        <span class="welcome-message">Welcome, {{ username }}!</span>
+                        <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
+                    </div>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <div style="position: fixed; top: 80px; right: 20px; font-size: 24px; color: #000;">
+          Balance: <span id="balance-value">{{ balance }}</span>
+        </div>
+
+        <script>
+
+          //logistic chaos
+          let logisticR = 4.0;
+
+          function logisticMap(r,x){
+            return r*x*(1-x);
+          } //gets next value in chaotic sequence
+
+          function applyLogisticChaos(ball){
+            let maxSpeed = 10;
+            let normalized = (ball.speed[0]+maxSpeed) / (2*maxSpeed);
+            if (normalized < 0) normalized = 0;
+            if (normalized > 1) normalized = 1;
+
+            let newNormalized = logisticMap(logisticR, normalized);
+            ball.speed[0] = newNormalized * 2 * maxSpeed - maxSpeed;
+          }  // takes ball's horizontal speed and normalizes it, then applies logistic formula to get a new 0-1 value
+
+          function rotateVector(vec, theta) {
+            const cosT = Math.cos(theta);
+            const sinT = Math.sin(theta);
+
+            const x = vec[0] * cosT - vec[1] * sinT;
+            const y = vec[0] * sinT + vec[1] * cosT;
+
+            return [x, y];
+          } // rotates a given vector by angle
+
+          function randomAngle(maxDeg) {
+            const maxRad = (maxDeg * Math.PI) / 180;
+            return (Math.random() * 2 - 1) * maxRad;
+          } // generates a random angle
+
+          //financials
+          var creditcardinfo;
+          var balance;
+
+          //balls
+          var ballSize;
+          var balls; // array of balls
+
+          //boardsetup
+          var rows; // 8 - 16
+          var risk; // low/med/high
+          var pegSize;
+          var grid;
+
+          //physics
+          var gravity; // downward force
+          var bouncyness; // how bouncy pegs are
+
+          //gameworks
+          var bWidth;
+          var bHeight;
+          var cWidth;
+          var cHeight;
+
+          var running;
+
+          // dictionaries multiplers per (row, risk)
+          const multipliers = {
+            8: {
+              "low":    ["5.6","2.5","1.1","1","0.5","1","1.1","2.1","5.6"],
+              "medium": ["13","3","1.3","0.7","0.4","0.7","1.3","3","13"],
+              "high":   ["29","4","1.5","0.3","0.2","0.3","1.5","4","29"]
+            },
+            12: {
+              "low":    ["10","3","1.6","1.4","1.1","1","0.5","1","1.4","1.6","3","10"],
+              "medium": ["33","11","4","2","1.1","0.6","0.3","0.6","1.1","2","4","11","33"],
+              "high":   ["170","24","8.1","2","0.7","0.2","0.2","0.2","0.7","2","8.1","24","170"]
+            },
+            16: {
+              "low":    ["16","9","2","1.4","1.4","1.2","1.1","1","0.5","1","1.1","1.2","1.4","1.4","2","9","16"],
+              "medium": ["110","41","10","5","3","1.5","1","0.5","0.3","0.5","1","1.5","3","5","10","41","110"],
+              "high":   ["1080","130","26","9","4","2","0.2","0.2","0.2","0.2","0.2","2","4","9","26","130","1080"]
             }
-          }
-        } // handles collisions between peg and all balls
+          };
 
-      }//Peg class
+          function startGame(){
+            // balance = {{bal}};
+            balance = 100000;
 
-      class Ball {
-        pos = [0,0];
-        prevPos = [0,0];
+            bWidth = window.innerWidth;
+            bHeight = window.innerHeight;
+            cWidth = (1440/2160)*bWidth;
+            cHeight = (640/1440)*cWidth;
 
-        constructor(x,y,sz){
-          this.pos[0] = x;
-          this.pos[1] = y;
-          this.prevPos[0] = x;
-          this.prevPos[1] = y;
-          this.size = sz;
-          this.speed = [0,0];//[x,y]
-          this.accel = [0,0];//[x,y] again
-        }//constructor
+            balls = [];
 
-        apply(force){
-          this.accel[0]+=force[0];
-          this.accel[1]+=force[1];
-        }//apply
+            rows = 16;
+            risk = "low";
+            createGrid();
+            gravity = [0,0.35];
+            bouncyness = 1.15;
 
-        run(){
-          this.prevPos = [...this.pos];
-          this.speed = [0,0];
-          this.speed[0]+=this.accel[0];
-          this.speed[1]+=this.accel[1];
-          this.pos[0]+=this.speed[0];
-          this.pos[1]+=this.speed[1];
+            running = false;
 
-          if(this.pos[1]>=((29.4/32)*cHeight)-ballSize+(1/100)*cHeight){
-            const index = balls.indexOf(this);
-            if (index !== -1){
-              let colIndex = getColumnIndexForBall(this.pos[0]);
-              let rowKey = String(rows);
-              let riskKey = risk;
-              let arr = multipliers[rowKey][riskKey];
-              if (colIndex < 0) colIndex = 0;
-              if (colIndex >= arr.length) colIndex = arr.length - 1;
-              let finalMultiplier = arr[colIndex];
+            createGrid();
+            board.start();
+          }//startGame
 
-              const formData = new FormData();
-              formData.append("multiplier", finalMultiplier);
+          var board = {
+            canvas : document.createElement("canvas"),
+            start : function() {
+                this.canvas.width = cWidth;
+                this.canvas.height = cHeight;
+                this.canvas.style.position = "absolute";
+                this.canvas.style.top = "100px"; // Adjust this value to move the canvas lower
+                this.canvas.style.left = "0";
+                this.canvas.style.right = "0";
+                this.canvas.style.margin = "auto";
+                this.context = this.canvas.getContext("2d");
+                document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+                this.frameNo = 0;
+                this.interval = setInterval(updateGameArea, 20);
+                this.canvas.addEventListener('click', onCanvasClick);
+            },
+            clear : function() {
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+          }; //initalizes game grid and variables
 
-              fetch("/plinko_result", {
-                method: "POST",
-                body: formData
-              })
-                .then(res => res.json())
+          function onCanvasClick(event) {
+            let posMouse = getMousePos(board.canvas, event);
+            let side2side = [0, (5/16)*cWidth];
+            let rowsBtnRect = { x: cWidth/80,y: (4.5/12)*cHeight,w: side2side[1]-(2/80)*cWidth, h: cHeight/14 };
+            let riskBtnRect = { x: cWidth/80,y: (6/12)*cHeight - 20,w: side2side[1]-(2/80)*cWidth, h: cHeight/14 };
+            let dropBtnRect = { x: cWidth/80,y: (7/12)*cHeight,w: side2side[1]-(2/80)*cWidth, h: cHeight/12 };
+            let homeBtnRect = { x: cWidth/80,y: (5/12)*cHeight - cHeight/12 - 20,w: side2side[1]-(2/80)*cWidth, h: cHeight/14 };
+
+            function inRect(rect) {
+              return (posMouse[0] >= rect.x && posMouse[0] <= rect.x + rect.w && posMouse[1] >= rect.y && posMouse[1] <= rect.y + rect.h);
+            }
+
+            if (inRect(rowsBtnRect)) {
+            // cycle rows
+              let rowCycle = [8, 12, 16];
+              let ind = rowCycle.indexOf(rows);
+              rows = rowCycle[(ind+ 1) % rowCycle.length];
+              createGrid();
+            }
+            else if (inRect(riskBtnRect)) {
+            // cycle risk
+              let riskCycle = ["low","medium","high"];
+              let idx = riskCycle.indexOf(risk);
+              risk = riskCycle[(idx + 1) % riskCycle.length];
+            }
+            else if (inRect(dropBtnRect)){
+              fetch("/plinko_drop", { method: "POST" })
+                .then(response => response.json())
                 .then(data => {
-                  if(data.balance !== undefined) {
+                  if (data.balance !== undefined) {
                     document.getElementById("balance-value").textContent = data.balance;
                   }
-                })
-            balls.splice(index, 1);
+                  spawnBall(1);
+              })
+            }
+
+            else if (inRect(homeBtnRect)){
+              window.location.href="/";
+            }
+          } // handles user interactions with canvas
+
+
+          function updateGameArea(){
+            bWidth = window.innerWidth;
+            bHeight = window.innerHeight;
+            cWidth = (1440/2160)*bWidth;
+            cHeight = (640/1440)*cWidth;
+
+            createGrid();
+
+            for (let i = balls.length - 1; i >= 0; i--) {
+              if(balls[i]!=null){
+                balls[i].apply(gravity);
+                balls[i].run();
               }
-          }
-        }// updates ball's position based on speed and acceleration, processes result w/ server, and removes ball
+            }
 
-        display(){
-          const ctx = board.context;
-          ctx.fillStyle = "#ffffff";
-          ctx.beginPath();
-          ctx.arc(this.pos[0], this.pos[1], this.size*1.25, 0, 2 * Math.PI);
-          ctx.fill();
-          ctx.strokeStyle = "#ffffff";
-          ctx.stroke();
-        }//display
-      }//Ball class
+            for(let i = 0; i < grid.length; i++){
+              for(let n = 0; n < grid[i].length; n++){
+                grid[i][n].bounceEm();
+              }
+            }
 
-      function lerp(start, end, amt) {
-        return start * (1 - amt) + end * amt;
-      }//lerp
+            displayEverything();
+          }//updateGameArea
 
-      function lerpColor(color1, color2, amt) {
-        let r = lerp(color1[0], color2[0], amt);
-        let g = lerp(color1[1], color2[1], amt);
-        let b = lerp(color1[2], color2[2], amt);
+          function displayEverything(){
+            //makes the rounded rectangular canvas
+            board.clear();
+            board.frameNo+=1;
+            board.context.fillStyle = "#0f1728";
+            board.context.beginPath();
+            board.context.roundRect(0,0,cWidth,cHeight,1/40*cHeight);
+            board.context.fill();
+            board.context.globalAlpha = 0;
+            board.context.stroke();
+            board.context.globalAlpha = 1;
 
-        return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
-      }//lerpColor this is a lot of work...
+            //display balls
+            for (let i = balls.length - 1; i >= 0; i--) {
+              if(balls[i]!=null){
+                balls[i].display();
+              }
+            }
 
-      function spawnBall(num){
-      	let entryPts = [grid[0][0].pos[0]+(ballSize*1.5),grid[0][2].pos[0]-(ballSize*1.5)];
-        for(let i = 0; i < num; i++){
-          let newBall = new Ball(getRandomInt(entryPts[0],entryPts[1]),.05*cHeight,pegSize*2);
-          newBall.speed[0] = getRandomInt(.9,1.5);
-          newBall.speed[0] = newBall.speed[0]*Math.pow(-1, Math.round(getRandomInt(0,2)));
-          balls.push(newBall);
-        }
+            //display pegs
+            for(let i = 0; i < grid.length; i++){
+              for(let n = 0; n < grid[i].length; n++){
+                grid[i][n].display();
+              }
+            }
 
-        return("spawned ball x"+num)
-      }//spawnBall(num)
+            //other stuff
+            displayMults();
+            displayUI();
+          } // renders visual components of the game
 
-      //HELPER FUNCTIONS
+          function displayMults(){
+            let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
+            let xPadding = (side2side[1]-side2side[0])/(rows);
+            let padding = pegSize*(3/4);
+            const ctx = board.context;
 
-      function getRandomInt(min, max) {
-        const minCeiled = Math.ceil(min);
-        const maxFloored = Math.floor(max);
-        return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
-      }//getRandomInt gets random integer with exclusive max and inclusive minimum
+            let rWidth = xPadding-(2*padding);
+            let rHeight = (.9/16)*cHeight;
 
-      function dist(x1,y1,x2,y2){
-        let a = x1 - x2;
-        let b = y1 - y2;
+            let red = [255,0,63];
+            let yellow = [255,192,0];
+            let redShadow = [120,23,46];
+            let yellowShadow = [120,96,22];
 
-        return Math.sqrt( a*a + b*b );
-      }//dist gets distance between 2 points
+            let halfPt = (rows+1)/2;
 
-      function radians2degrees(radians){
-        var pi = Math.PI;
-        return radians * (180/pi);
-      }//radians2degrees converts radians to degrees
+            let rowKey = String(rows);
+            let riskKey = risk;
+            let arr = multipliers[rowKey][riskKey];
 
-      function detectLeftButton(evt){
-        evt = evt || window.event;
-        if("buttons" in evt){
-          return evt.buttons == 1;
-        }
-        var button = evt.which || ev.button;
-        return button == 1;
-      }//detectLeftButton detects left mouse click, from stack overflow
+            for(let i = 0;i < arr.length; i++){
+              ctx.fillStyle = yellowShadow;
+              if(i<halfPt){
+                ctx.fillStyle = lerpColor(redShadow, yellowShadow,i/halfPt);
+              }
+              else if(i>halfPt){
+                ctx.fillStyle = lerpColor(yellowShadow, redShadow,(i-halfPt+.5)/halfPt);
+              }
+              ctx.beginPath();
+              ctx.roundRect(side2side[0]+padding+((rWidth+(2*padding))*i),(29.4/32)*cHeight,rWidth,rHeight,.25/32*cHeight);
+              ctx.fill();
+              ctx.globalAlpha = 0;
+              ctx.strokeStyle = "#0f1728";
+              ctx.stroke();
+              ctx.globalAlpha = 1;
 
-      function getMousePos(canvas, evt){
-        var rect = canvas.getBoundingClientRect();
-        return [evt.clientX - rect.left, evt.clientY - rect.top];
-      }//getMousePos gets mouse position relative to canvas, derived from stack overflow
+              ctx.fillStyle = yellow;
+              if(i<halfPt){
+                ctx.fillStyle = lerpColor(red, yellow,i/halfPt);
+              }
+              else if(i>halfPt){
+                ctx.fillStyle = lerpColor(yellow, red,(i-halfPt+.5)/halfPt);
+              }
+              ctx.beginPath();
+              ctx.roundRect(side2side[0]+padding+(rWidth+2*padding)*i,(29.2/32)*cHeight,rWidth,rHeight,.25/32*cHeight);
+              ctx.fill();
+              ctx.globalAlpha = 0;
+              ctx.strokeStyle = "#0f1728";
+              ctx.stroke();
+              ctx.globalAlpha = 1;
 
-      function getColumnIndexForBall(x) {
-        let side2side = [(7/16) * cWidth, (7/8) * cWidth];
-        let rowKey = String(rows);
-        let riskKey = risk;
-        let arr = multipliers[rowKey][riskKey];
-        let colCount = arr.length;
-        let xRange = side2side[1] - side2side[0];
-        let colWidth = xRange / colCount;
-        if (x < side2side[0]) return 0
-        if (x > side2side[1]) return colCount - 1;
-        let colIndex = Math.floor( (x - side2side[0]) / colWidth );
-        if (colIndex < 0) colIndex = 0;
-        if (colIndex >= colCount) colIndex = colCount - 1;
-        return colIndex;
-      }//getColumnIndexForBall calculates which column the ball lands in by using its x position.
+              ctx.fillStyle = "#000000";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.font = "bold 14px sans-serif";
+              let centerX = side2side[0]+padding+(rWidth+2*padding)*i+rWidth/2;
+              let centerY = (29.3/32) * cHeight + rHeight / 2;
+              ctx.fillText("x" + arr[i], centerX, centerY);
+            }
+          }//displayMults
 
-    </script>
+          function displayUI(){
+            let side2side = [0,(5/16)*cWidth]
+            const ctx = board.context;
+            let prop = 1440/2160;
 
-  </body>
+            //grey half box
+            ctx.fillStyle ="#334155";
+            ctx.beginPath();
+            ctx.roundRect(0,0,side2side[1],cHeight,1/40*cHeight);
+            ctx.rect(side2side[1]/2,0,side2side[1]/2,cHeight);
+            ctx.fill();
+            ctx.globalAlpha = 0;
+            ctx.strokeStyle = "#0f1728";
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+
+            //green drop ball buttons
+            ctx.fillStyle = "#22c55e";
+            ctx.beginPath();
+            ctx.roundRect((1/80)*cWidth,(7/12)*cHeight,side2side[1]-((2/80)*cWidth),cHeight/12,1/40*cHeight);
+            ctx.fill();
+            ctx.globalAlpha = 0;
+            ctx.strokeStyle = "#0f1728";
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#0f1728";
+            ctx.font = `400 ${24*prop}px 'Calibri', sans-serif`;
+            ctx.fillText("Drop Ball", (1/20)*cWidth+(.5*(side2side[1]-((2/20)*cWidth))), ((7/12)*cHeight)+0.5*(cHeight/12));
+
+            // home button 
+            ctx.fillStyle = "#007bff";
+            ctx.beginPath();
+            ctx.roundRect((1 / 80) * cWidth,(5 / 12) * cHeight - cHeight / 12 - 20,side2side[1] - (2 / 80) * cWidth,cHeight / 14,1 / 40 * cHeight);
+            ctx.fill();
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#ffffff";
+            ctx.font = `400 ${22 * prop}px 'Calibri', sans-serif`;
+            ctx.fillText("Home",(1 / 20) * cWidth + 0.5 * (side2side[1] - (2 / 20) * cWidth),(5 / 12) * cHeight - cHeight / 24 - 20);
+
+            // button for rows
+            let rowsBtnX = (1/80)*cWidth;
+            let rowsBtnY = (4.5/12)*cHeight;
+            let rowsBtnW = side2side[1] - (2/80)*cWidth;
+            let rowsBtnH = cHeight/14;
+            ctx.fillStyle = "#6c757d";
+            ctx.beginPath();
+            ctx.roundRect(rowsBtnX, rowsBtnY, rowsBtnW, rowsBtnH, 1/40*cHeight);
+            ctx.fill();
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#ffffff";
+            ctx.font = `400 ${22*prop}px 'Calibri', sans-serif`;
+            ctx.fillText(`Rows: ${rows}`, rowsBtnX + rowsBtnW/2, rowsBtnY + rowsBtnH/2);
+
+            // button for risks
+            let riskBtnX = (1/80)*cWidth;
+            let riskBtnY = (6/12)*cHeight - 20;
+            let riskBtnW = side2side[1] - (2/80)*cWidth;
+            let riskBtnH = cHeight/14;
+            ctx.fillStyle = "#6c757d";
+            ctx.beginPath();
+            ctx.roundRect(riskBtnX, riskBtnY, riskBtnW, riskBtnH, 1/40*cHeight);
+            ctx.fill();
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#ffffff";
+            ctx.font = `400 ${22*prop}px 'Calibri', sans-serif`;
+            ctx.fillText(`Risk: ${risk}`, riskBtnX + riskBtnW/2, riskBtnY + riskBtnH/2);
+
+            ctx.fillStyle = "#6c757d";
+
+          }//displayUI by rendering buttons for rows, risk levels, etc
+
+          function createGrid(){
+            let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
+            let upandbot = [(1/10)*cHeight,(7/8)*cHeight];//bottom and top bounds
+
+            grid = [];
+            grid.length = rows;
+            let yPadding = (upandbot[1]-upandbot[0])/(rows-1);
+            let xPadding = (side2side[1]-side2side[0])/(rows);
+            // console.log(this.padding)
+
+            pegSize = yPadding/10;
+            ballSize = pegSize*2;
+            for(let i = 0; i < grid.length; i++){//per row basis
+              let rw = [];
+              rw.length = i+3;//0th row has 3 pegs, 1st has 4
+              let xOffset = side2side[0]+(xPadding/2) *(rows+2-rw.length);
+              for(let n = 0; n < rw.length; n++){//pegs each row
+                  rw[n] = new Peg(xOffset+(xPadding*n),yPadding*(i)+((1/10)*cHeight),pegSize);
+              }
+              grid[i] = rw;
+            }
+          }//createGrid of pegs
+
+          class Peg {
+            pos = [];
+
+            constructor(x,y,sz){
+              this.pos[0] = x;
+              this.pos[1] = y;
+              this.size = sz;
+              this.bounce = bouncyness;
+            }//initializes a peg
+
+            display() {
+              const ctx = board.context;
+              ctx.fillStyle = "#ffffff";
+              ctx.beginPath();
+              ctx.arc(this.pos[0], this.pos[1], this.size, 0, 2 * Math.PI);
+              ctx.fill();
+              ctx.strokeStyle = "#ffffff";
+              ctx.stroke();
+            }//draws the peg 
+
+            bounceEm() {
+              for(let i = 0; i < balls.length; i++){
+                let distance = dist(this.pos[0], this.pos[1], balls[i].pos[0],balls[i].pos[1]);
+                let sumR = pegSize + ballSize;
+                // if ball is overlapping with peg
+                if(distance < sumR){
+                  // push it out so it doesn't phase through
+                  let overlap = sumR - distance;
+                  let dx = balls[i].pos[0] - this.pos[0];
+                  let dy = balls[i].pos[1] - this.pos[1];
+                  let len = distance;
+                  if (len!==0){
+                    dx /= len;
+                    dy /= len;
+                    balls[i].pos[0] += dx * overlap;
+                    balls[i].pos[1] += dy * overlap;
+                  }
+
+                  let direction = [dx,dy];
+                  let bForce = [direction[0]*this.bounce, direction[1]*this.bounce*1.5];
+
+                  applyLogisticChaos(balls[i]);
+
+                  const angle = randomAngle(15); // tweak as needed
+                  bForce = rotateVector(bForce, angle);
+
+                  balls[i].speed = [balls[i].speed[0]*Math.pow(-1, Math.round(getRandomInt(0,2))),0]
+                  balls[i].accel = [0,0];
+                  balls[i].apply(bForce);
+                }
+              }
+            } // handles collisions between peg and all balls
+
+          }//Peg class
+
+          class Ball {
+            pos = [0,0];
+            prevPos = [0,0];
+
+            constructor(x,y,sz){
+              this.pos[0] = x;
+              this.pos[1] = y;
+              this.prevPos[0] = x;
+              this.prevPos[1] = y;
+              this.size = sz;
+              this.speed = [0,0];//[x,y]
+              this.accel = [0,0];//[x,y] again
+            }//constructor
+
+            apply(force){
+              this.accel[0]+=force[0];
+              this.accel[1]+=force[1];
+            }//apply
+
+            run(){
+              this.prevPos = [...this.pos];
+              this.speed = [0,0];
+              this.speed[0]+=this.accel[0];
+              this.speed[1]+=this.accel[1];
+              this.pos[0]+=this.speed[0];
+              this.pos[1]+=this.speed[1];
+
+              if(this.pos[1]>=((29.4/32)*cHeight)-ballSize+(1/100)*cHeight){
+                const index = balls.indexOf(this);
+                if (index !== -1){
+                  let colIndex = getColumnIndexForBall(this.pos[0]);
+                  let rowKey = String(rows);
+                  let riskKey = risk;
+                  let arr = multipliers[rowKey][riskKey];
+                  if (colIndex < 0) colIndex = 0;
+                  if (colIndex >= arr.length) colIndex = arr.length - 1;
+                  let finalMultiplier = arr[colIndex];
+
+                  const formData = new FormData();
+                  formData.append("multiplier", finalMultiplier);
+
+                  fetch("/plinko_result", {
+                    method: "POST",
+                    body: formData
+                  })
+                    .then(res => res.json())
+                    .then(data => {
+                      if(data.balance !== undefined) {
+                        document.getElementById("balance-value").textContent = data.balance;
+                      }
+                    })
+                balls.splice(index, 1);
+                  }
+              }
+            }// updates ball's position based on speed and acceleration, processes result w/ server, and removes ball
+
+            display(){
+              const ctx = board.context;
+              ctx.fillStyle = "#ffffff";
+              ctx.beginPath();
+              ctx.arc(this.pos[0], this.pos[1], this.size*1.25, 0, 2 * Math.PI);
+              ctx.fill();
+              ctx.strokeStyle = "#ffffff";
+              ctx.stroke();
+            }//display
+          }//Ball class
+
+          function lerp(start, end, amt) {
+            return start * (1 - amt) + end * amt;
+          }//lerp
+
+          function lerpColor(color1, color2, amt) {
+            let r = lerp(color1[0], color2[0], amt);
+            let g = lerp(color1[1], color2[1], amt);
+            let b = lerp(color1[2], color2[2], amt);
+
+            return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+          }//lerpColor this is a lot of work...
+
+          function spawnBall(num){
+            let entryPts = [grid[0][0].pos[0]+(ballSize*1.5),grid[0][2].pos[0]-(ballSize*1.5)];
+            for(let i = 0; i < num; i++){
+              let newBall = new Ball(getRandomInt(entryPts[0],entryPts[1]),.05*cHeight,pegSize*2);
+              newBall.speed[0] = getRandomInt(.9,1.5);
+              newBall.speed[0] = newBall.speed[0]*Math.pow(-1, Math.round(getRandomInt(0,2)));
+              balls.push(newBall);
+            }
+
+            return("spawned ball x"+num)
+          }//spawnBall(num)
+
+          //HELPER FUNCTIONS
+
+          function getRandomInt(min, max) {
+            const minCeiled = Math.ceil(min);
+            const maxFloored = Math.floor(max);
+            return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+          }//getRandomInt gets random integer with exclusive max and inclusive minimum
+
+          function dist(x1,y1,x2,y2){
+            let a = x1 - x2;
+            let b = y1 - y2;
+
+            return Math.sqrt( a*a + b*b );
+          }//dist gets distance between 2 points
+
+          function radians2degrees(radians){
+            var pi = Math.PI;
+            return radians * (180/pi);
+          }//radians2degrees converts radians to degrees
+
+          function detectLeftButton(evt){
+            evt = evt || window.event;
+            if("buttons" in evt){
+              return evt.buttons == 1;
+            }
+            var button = evt.which || ev.button;
+            return button == 1;
+          }//detectLeftButton detects left mouse click, from stack overflow
+
+          function getMousePos(canvas, evt){
+            var rect = canvas.getBoundingClientRect();
+            return [evt.clientX - rect.left, evt.clientY - rect.top];
+          }//getMousePos gets mouse position relative to canvas, derived from stack overflow
+
+          function getColumnIndexForBall(x) {
+            let side2side = [(7/16) * cWidth, (7/8) * cWidth];
+            let rowKey = String(rows);
+            let riskKey = risk;
+            let arr = multipliers[rowKey][riskKey];
+            let colCount = arr.length;
+            let xRange = side2side[1] - side2side[0];
+            let colWidth = xRange / colCount;
+            if (x < side2side[0]) return 0
+            if (x > side2side[1]) return colCount - 1;
+            let colIndex = Math.floor( (x - side2side[0]) / colWidth );
+            if (colIndex < 0) colIndex = 0;
+            if (colIndex >= colCount) colIndex = colCount - 1;
+            return colIndex;
+          }//getColumnIndexForBall calculates which column the ball lands in by using its x position.
+        </script>
+    </body>
 </html>
