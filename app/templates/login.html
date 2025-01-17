@@ -29,6 +29,7 @@ Time spent: x
         {% endwith %}
     </header>
     
+    <-- Login form -->
     <div class="form-container">
     <h1 class="home-subtitle">Login</h1>
     <form action="{{ url_for('login') }}" method="POST">
@@ -40,10 +41,8 @@ Time spent: x
 
         <button type="submit">Login</button>
     </form>
-    
 
-    <hr>
-
+     <-- Register form -->
     <h2 class="home-subtitle">Register</h2>
     <form action="{{ url_for('register') }}" method="POST">
         <label>Username:</label><br>

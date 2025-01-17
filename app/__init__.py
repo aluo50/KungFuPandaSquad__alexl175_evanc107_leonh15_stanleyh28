@@ -16,8 +16,7 @@ from games.blackjack import (
     initialize_game,
     player_hit,
     dealer_play,
-    determine_winner,
-    double_down,
+    determine_winner
 )
 
 app = Flask(__name__)
@@ -180,8 +179,10 @@ def double_down_route():
     else:
         session['balance'] -= session['bet']
         session['bet'] *= 2
-        double_down()
+        player_hit()
         new_card = session["player_hand"][-1]
+        
+        session.modified = True
         
         user_id = get_user(session['username'])['user_id']
         
