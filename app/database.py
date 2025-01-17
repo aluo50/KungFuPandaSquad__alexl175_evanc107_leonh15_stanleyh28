@@ -13,11 +13,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 DB_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'steakco.db')
 
+# establishes a connection to db
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
+# creates tables (users, transactions, blackjack_in_progress)
 def create_db():
     conn = get_db_connection()
     cur = conn.cursor()
@@ -53,6 +55,7 @@ def create_db():
     conn.commit()
     conn.close()
 
+# registers a new user 
 def add_user():
     create_db()
     if request.method == 'POST':
@@ -73,6 +76,7 @@ def add_user():
     except sqlite3.IntegrityError:
         flash('Username already Exists', 'error')
 
+# authenticates a user
 def login_user():
     if request.method == 'POST':
         username = request.form['username']
@@ -91,7 +95,7 @@ def login_user():
         else:
             flash('Invalid username or password!', 'error')
 
-
+# retrieves user info
 def get_user(user):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -149,7 +153,7 @@ def save_blackjack(user_id, bet, player_hand, dealer_hand, game_over):
     conn.commit()
     conn.close()
 
-    
+# initializes a new blackjack game state
 def add_blackjack_user(user_id):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -157,6 +161,7 @@ def add_blackjack_user(user_id):
     conn.commit()
     conn.close()
 
+# retrieves and ranks users based on their balance
 def get_leaderboard():
     conn = get_db_connection()
     cur = conn.cursor()
@@ -174,6 +179,7 @@ def get_leaderboard():
         prev_balance = row['balance']
     return leaderboard
 
+# retrieves the transaction history for a user
 def get_transaction_history(user_id):
     conn = get_db_connection()
     cur = conn.cursor()
