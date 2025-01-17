@@ -25,10 +25,12 @@ app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32)
 
 database.create_db()
 
+# redirects to home page
 @app.route("/")
 def index():
     return redirect(url_for("home"))
 
+# renders home page if user logged in
 @app.route("/home")
 def home():
     if "username" in session:
@@ -42,6 +44,7 @@ def home():
     else:
         return render_template("home.html", username=None, balance=None)
 
+# handles user login
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -51,6 +54,7 @@ def login():
         return redirect(url_for("login"))
     return render_template("login.html")
 
+# logs out user and redirects to home
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
     if "username" in session:
@@ -58,6 +62,7 @@ def logout():
         flash(f"{user}, you have been logged out.", "success")
     return redirect(url_for("home"))
 
+# handles user registration 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -67,7 +72,7 @@ def register():
         return redirect(url_for("register"))
     return render_template("login.html")
     
-# blackjack game
+# starts or resumes blackjack game
 @app.route("/blackjack", methods=["GET"])
 def play_blackjack():
     if "username" in session: 
@@ -126,7 +131,7 @@ def play_blackjack():
         flash('Login to play!', 'error')
         return redirect(url_for("home"))
 
-# Hit route
+# processes a hit action in blackjack
 @app.route("/hit", methods=["POST"])
 def hit():
     player_hit()
@@ -150,7 +155,7 @@ def hit():
         "result": result
     })
 
-# Stand route
+# processes a stand action in blackjack
 @app.route("/stand", methods=["POST"])
 def stand():
     dealer_play()
@@ -166,7 +171,7 @@ def stand():
         "amount": session["bet"]
     })
 
-# Double down route
+# handles doubling down in blackjack
 @app.route("/double_down", methods=["POST"])
 def double_down_route():
     balance = session['balance']
@@ -222,6 +227,7 @@ def set_bet():
         "bet": session["bet"]
     })
 
+# renders plinko game page
 @app.route("/plinko")
 def plinko():
     if "username" not in session:
@@ -233,7 +239,8 @@ def plinko():
     session["balance"] = balance 
 
     return render_template("plinko.html",username=session["username"], balance=balance)
-    
+
+# processes action of dropping a ball in plinko
 @app.route("/plinko_drop", methods=["POST"])
 def plinko_drop():
     if "username" not in session:
@@ -246,6 +253,7 @@ def plinko_drop():
 
     return jsonify({"message": "dropped ball", "balance": new_balance})
 
+# processes the results of plinko based on multiplier
 @app.route("/plinko_result", methods=["POST"])
 def plinko_result():
     if "username" not in session:
@@ -265,7 +273,7 @@ def plinko_result():
 
     return jsonify({"balance":new_balance, "winnings":winnings})
 
-
+# renders mines game page
 @app.route("/mines")
 def mines():
     if "username" not in session:
@@ -283,6 +291,7 @@ def mines():
 
     return render_template("mines.html",username=session["username"], balance=balance, bet=bet_amount, accumulated=session['accumulated'])
 
+# increments accumulated winnings in mines
 @app.route("/mines_increment", methods=["POST"])
 def mines_increment():
     if "username" not in session:
@@ -299,6 +308,7 @@ def mines_increment():
         "accumulated": session['accumulated']
     })
 
+# handles losing in mines
 @app.route("/mines_lose", methods=["POST"])
 def mines_lose():
     if "username" not in session:
@@ -313,6 +323,7 @@ def mines_lose():
 
     return jsonify({"message": "lost", "balance": new_balance, "accumulated": session['accumulated']})
 
+# handles win condition for mines
 @app.route("/mines_win", methods=["POST"])
 def mines_win():
     if "username" not in session:
@@ -327,6 +338,7 @@ def mines_win():
     
     return jsonify({"message": "won", "balance": new_balance, "accumulated": accumulated})
 
+# allows user to cash out accumlated winnings
 @app.route("/mines_cashout", methods=["POST"])
 def mines_cashout():
     if "username" not in session:
@@ -341,6 +353,7 @@ def mines_cashout():
 
     return jsonify({"message": "Cashed out successfully.","balance": new_balance,"accumulated": session['accumulated']})
 
+# renders leaderboard page
 @app.route("/leaderboard", methods=["GET"])
 def show_leaderboard():
     results = get_leaderboard()

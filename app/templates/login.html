@@ -28,6 +28,27 @@ Time spent: x
             {% endif %}
         {% endwith %}
     </header>
+
+    <nav class="navbar">
+        <ul>
+          <li><a href="{{ url_for('home') }}">Home🏠</a></li>
+          <li class="dropdown">
+            <a href="javascript:void(0)" class="dropbtn">Games🎮▼</a>
+            <ul class="dropdown-content">
+              <li><a href="{{ url_for('play_blackjack') }}">Blackjack <img src="{{ url_for('static', filename='images/blackjack.png') }}" class=blackjack-icon></a></li>
+              <li><a href="{{ url_for('plinko') }}">Plinko🎲</a></li>
+              <li><a href="{{ url_for('mines') }}">Mines💣</a></li>
+            </ul>
+          </li>
+          <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard🏆</a></li>
+          {% if username %}
+            <div class="welcome-container">
+              <span class="welcome-message">Welcome, {{ username }}!</span>
+              <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
+            </div>
+          {% endif %}
+        </ul>
+      </nav>
     
     <div class="form-container">
     <h1 class="home-subtitle">Login</h1>
@@ -35,7 +56,7 @@ Time spent: x
         <label>Username:</label><br>
         <input type="text" name="username" required><br><br>
 
-        <label>Password</label><br>
+        <label>Password:</label><br>
         <input type="password" name="password" required><br><br>
 
         <button type="submit">Login</button>
