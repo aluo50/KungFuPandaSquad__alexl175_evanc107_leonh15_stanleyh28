@@ -344,7 +344,11 @@ def mines_cashout():
 @app.route("/leaderboard", methods=["GET"])
 def show_leaderboard():
     results = get_leaderboard()
-    return render_template("leaderboard.html", leaderboard=results)
+    if 'username' in session:
+        username = session['username']
+    else:
+        username=None
+    return render_template("leaderboard.html", leaderboard=results, username=username)
  
 if __name__ == "__main__":
     app.run(debug=True)

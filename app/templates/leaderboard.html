@@ -62,11 +62,19 @@ Time spent: x
         </thead>
         <tbody>
             {% for row in leaderboard %}
-            <tr>
-                <td>{{ row['rank'] }}</td>
-                <td>{{ row['username'] }}</td>
-                <td>{{ row['balance'] }}</td>
-            </tr>
+                {% if username %}
+                    {% if row['username'] == username%}
+                        <tr class='highlighted'>
+                    {% else %}
+                        <tr>
+                    {% endif %}
+                {% else %}
+                    <tr>
+                {% endif %}
+                    <td>{{ row['rank'] }}</td>
+                    <td>{{ row['username'] }}</td>
+                    <td>{{ row['balance'] }}</td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>

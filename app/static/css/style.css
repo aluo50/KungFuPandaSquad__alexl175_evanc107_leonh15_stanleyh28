@@ -540,6 +540,10 @@ body {
   background-color: #f2f2f2;
 }
 
+.leaderboard-table tbody tr.highlighted td {
+    background-color: yellow; /* Highlight color */
+}
+
 .change-positive {
     color: green;
     font-weight: bold;
