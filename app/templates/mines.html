@@ -52,21 +52,22 @@ Time spent: 51
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-Q3Gbe2K1BlhlKfBfbTmbv/hE6eoP4cv4LJ11mA1Y8VxqOusGCOo8rJdC1Zq3G7l8" crossorigin="anonymous"></script>
 
-        <script>
-          //financials
-          var creditcardinfo;
-          var balance;
+      <script>
+      
+      //financials
+      var creditcardinfo;
+      var balance;
 
-          //sizing
-          var browWidth;
-          var browHeight;
-          var cWidth;
-          var cHeight;
+      //sizing
+      var browWidth;
+      var browHeight;
+      var cWidth;
+      var cHeight;
 
-          //pre game
-          var numRows;
-          var numCols;
-          var grid;
+      //pre game
+      var numRows;
+      var numCols;
+      var grid;
       var mines; //1 to (numRows*numCols)-1
       var clicksAllowed;
 
@@ -104,14 +105,14 @@ Time spent: 51
         frameCount = 0;
         playing = true;
         createGrid();
-      }//startGame
+      }//resets the game
 
       function updateAccumulatedDisplay(newAccumulated){
         const accumulatedDisplay = document.getElementById("accumulated-display");
         if (accumulatedDisplay){
           accumulatedDisplay.innerText = newAccumulated;
         }
-      }
+      }// updates amt of accumlated coins
 
       var board = {
         canvas : document.createElement("canvas"),
@@ -423,18 +424,6 @@ Time spent: 51
         });
       });
 
-      function resetGame(){
-        let rig = (((numRows*numRows)+1)/(mines+1))-.5;
-        let sd = negativeHypergeometricDistributionToFindStandardDistributionOfMines(numRows*numRows, mines);
-        clicksAllowed = Math.floor(genNormalDistribution(rig, sd));
-        if(clicksAllowed < 0){
-          clicksAllowed = 0;
-        }
-        frameCount = 0;
-        playing = true;
-        createGrid();
-      }
-
       document.getElementById("resetButton").addEventListener("click", function(){
         resetGame();
       });
@@ -471,15 +460,6 @@ Time spent: 51
         if(win==false){
           minesLeft-=1;
         }
-        // //wait here
-        // for(let i = 0;i<grid.length;i++){
-        //   for(let n = 0;n<grid[i].length;n++){
-        //     if(grid[i][n].state==4 || grid[i][n].state==5 ){
-        //       grid[i][n].open();
-        //     }
-        //   }
-        // }
-
         setTimeout(() => {
           for(let i = 0; i < grid.length; i++){
              for(let n = 0; n < grid[i].length; n++){
@@ -507,7 +487,7 @@ Time spent: 51
           }
         }, 1600);
         ending = false;
-      }//endGame
+      }//endGame handles logic depending on whether the player wins or loses, and reveals all squares
 
       function genNormalDistribution(mean, stdDev) {
         const u1 = Math.random();
