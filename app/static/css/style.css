@@ -485,63 +485,150 @@ body {
 }
 
 .transaction-table-container {
-  text-align: center; 
-  margin-top: 30px; 
-  font-family: Arial, sans-serif;
-}
-
-.transaction-table {
-  width: 80%;
-  margin: 0 auto;
-  border-collapse: collapse;
+  text-align: center;
   margin-top: 30px;
+  font-family: 'Poppins', sans-serif;
 }
 
 .transactions-label {
-  text-align: center;
-  margin-top: 20px;   
-  font-size: 1.2rem; 
-  color: gray;       
+  margin-top: 20px;
+  font-size: 1.4rem;
+  color: #6c757d;
+  font-weight: 600;
 }
 
 .transactions-label a {
   text-decoration: none;
-  color: #007bff;
+  color: #4a47a3;
   font-weight: bold;
-  text-decoration: underline;
-  font-family: Arial, sans-serif;
+  transition: color 0.3s;
+}
+
+.transactions-label a:hover {
+  color: #6c63ff;
+}
+
+.transaction-table {
+  width: 80%;
+  margin: 30px auto;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(to bottom, #ffffff, #f9f9f9);
 }
 
 .transaction-table th,
 .transaction-table td {
-  border: 1px solid #ccc;
-  padding: 8px;
+  padding: 15px;
   text-align: center;
+  font-size: 16px;
 }
+
 .transaction-table th {
+  background: linear-gradient(to right, #007bff, #6c63ff);
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.transaction-table tbody tr {
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.transaction-table tbody tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 
-.leaderboard-table{
+.transaction-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.transaction-table tbody tr:hover {
+  background-color: #eaf2ff;
+  transform: scale(1.02);
+}
+
+.transaction-table td {
+  border-bottom: 1px solid #ddd;
+}
+
+.transaction-table td:last-child {
+  font-weight: 600;
+  color: #4a47a3;
+}
+
+.transaction-table tfoot {
+  background: linear-gradient(to right, #6c63ff, #007bff);
+  color: white;
+  text-align: center;
+  font-weight: bold;
+}
+
+.leaderboard-table {
   width: 80%;
-  margin: 0 auto;
+  margin: 30px auto;
   border-collapse: collapse;
-  margin-top: 30px;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .leaderboard-table th,
 .leaderboard-table td {
-  border: 1px solid #ccc;
-  padding: 8px;
+  padding: 15px;
   text-align: center;
+  font-size: 16px;
 }
 
 .leaderboard-table th {
+  background: linear-gradient(to right, #6c63ff, #4a47a3);
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.leaderboard-table tbody tr {
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.leaderboard-table tbody tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 
+.leaderboard-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.leaderboard-table tbody tr:hover {
+  background-color: #e9ecef;
+  transform: scale(1.02);
+}
+
 .leaderboard-table tbody tr.highlighted td {
-    background-color: yellow; /* Highlight color */
+  background-color: #ffe066;
+  font-weight: bold;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.leaderboard-table td {
+  border-bottom: 1px solid #ddd;
+}
+
+.leaderboard-table td:last-child {
+  font-weight: 600;
+  color: #4a47a3;
+}
+
+.leaderboard-table tfoot {
+  background: linear-gradient(to right, #4a47a3, #6c63ff);
+  color: white;
+  text-align: center;
+  font-weight: bold;
 }
 
 .change-positive {
