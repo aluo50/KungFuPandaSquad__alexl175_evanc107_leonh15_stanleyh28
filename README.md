@@ -1,9 +1,9 @@
 # Steak Co. by KungFuPandaSquad
 ## Roster
-* Alex Luo - PM, flask routing, front end framework, db creation, will help with games 
-* Evan Chan - API handling and styling
-* Leon Huang - Implementing games and will help with db creation 
-* Stanley Hoo - HTML Templates and styling
+* Alex Luo - PM, flask routing, plinko physics and transactions, mines transactions
+* Evan Chan - Implementing plinko canvas and mines grid
+* Leon Huang - HTML templates and styling, team flag, editing video
+* Stanley Hoo - Implementing blackjack, flask routing, databases, and some styling
 
 ## App Description
 Our website will be an online gaming site where users can:
