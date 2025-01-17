@@ -15,70 +15,67 @@ Time spent: x
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     </head>
     <body>
+        <header>
+            <!-- Allows flashing messages in the html -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </header>
 
-    <header>
-        <!-- Allows flashing messages in the html -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages">
-                {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">{{ message }}</div>
-                {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-    </header>
-
-    <nav class="navbar">
-        <ul>
-          <li><a href="{{ url_for('home') }}">Home🏠</a></li>
-          <li class="dropdown">
-            <a href="javascript:void(0)" class="dropbtn">Games🎮▼</a>
-            <ul class="dropdown-content">
-              <li><a href="{{ url_for('play_blackjack') }}">Blackjack <img src="{{ url_for('static', filename='images/blackjack.png') }}" class=blackjack-icon></a></li>
-              <li><a href="{{ url_for('plinko') }}">Plinko🎲</a></li>
-              <li><a href="{{ url_for('mines') }}">Mines💣</a></li>
+        <!-- Navbar -->
+        <nav class="navbar">
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home🏠</a></li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn">Games🎮▼</a>
+                    <ul class="dropdown-content">
+                        <li><a href="{{ url_for('play_blackjack') }}">Blackjack <img src="{{ url_for('static', filename='images/blackjack.png') }}" class=blackjack-icon></a></li>
+                        <li><a href="{{ url_for('plinko') }}">Plinko🎲</a></li>
+                        <li><a href="{{ url_for('mines') }}">Mines💣</a></li>
+                    </ul>
+                </li>
+                <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard🏆</a></li>
+                {% if username %}
+                    <div class="welcome-container">
+                        <span class="welcome-message">Welcome, {{ username }}!</span>
+                        <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
+                    </div>
+                {% endif %}
             </ul>
-          </li>
-          <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard🏆</a></li>
-          {% if username %}
-            <div class="welcome-container">
-              <span class="welcome-message">Welcome, {{ username }}!</span>
-              <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
-            </div>
-          {% endif %}
-        </ul>
-      </nav>
-    
-    <-- Login form -->
-    <div class="form-container">
-    <h1 class="home-subtitle">Login</h1>
-    <form action="{{ url_for('login') }}" method="POST">
-        <label>Username:</label><br>
-        <input type="text" name="username" required><br><br>
+        </nav>
 
-        <label>Password:</label><br>
-        <input type="password" name="password" required><br><br>
+        <!-- Containers -->
+        <div class="form-container">
+            <!-- Login form -->
+            <h1 class="home-subtitle">Login</h1>
+            <form action="{{ url_for('login') }}" method="POST">
+                <label>Username:</label><br>
+                <input type="text" name="username" required><br><br>
 
-        <button type="submit">Login</button>
-    </form>
+                <label>Password:</label><br>
+                <input type="password" name="password" required><br><br>
 
-     <-- Register form -->
-    <h2 class="home-subtitle">Register</h2>
-    <form action="{{ url_for('register') }}" method="POST">
-        <label>Username:</label><br>
-        <input type="text" name="username" required><br><br>
-        
-        <label>Password:</label><br>
-        <input type="password" name="password" required><br><br>
+                <button type="submit">Login</button>
+            </form>
 
-        <button type="submit">Register</button>
-    </form>
-    </div>
+             <!-- Register form -->
+            <h2 class="home-subtitle">Register</h2>
+            <form action="{{ url_for('register') }}" method="POST">
+                <label>Username:</label><br>
+                <input type="text" name="username" required><br><br>
 
-    <p class="transactions-label"><a href="{{ url_for('home') }}">Back to Home</a></p>
+                <label>Password:</label><br>
+                <input type="password" name="password" required><br><br>
 
-
+                <button type="submit">Register</button>
+            </form>
+        </div>
     </body>
     
 </html>
