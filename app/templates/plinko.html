@@ -34,16 +34,16 @@ Time spent: x
   <body onload = "startGame()">
     <nav class="navbar">
       <ul>
-        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('home') }}">Home🏠</a></li>
         <li class="dropdown">
-          <a href="javascript:void(0)" class="dropbtn">Games ▼</a>
+          <a href="javascript:void(0)" class="dropbtn">Games🎮▼</a>
           <ul class="dropdown-content">
-            <li><a href="{{ url_for('play_blackjack') }}">Blackjack</a></li>
-            <li><a href="{{ url_for('plinko') }}">Plinko</a></li>
-            <li><a href="{{ url_for('mines') }}">Mines</a></li>
+            <li><a href="{{ url_for('play_blackjack') }}">Blackjack <img src="{{ url_for('static', filename='images/blackjack.png') }}" class=blackjack-icon></a></li>
+            <li><a href="{{ url_for('plinko') }}">Plinko🎲</a></li>
+            <li><a href="{{ url_for('mines') }}">Mines💣</a></li>
           </ul>
         </li>
-        <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
+        <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard🏆</a></li>
         {% if username %}
           <div class="welcome-container">
             <span class="welcome-message">Welcome, {{ username }}!</span>

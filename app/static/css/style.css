@@ -254,6 +254,11 @@ color: #155724;
     height: 24px;
 }
 
+.blackjack-icon {
+    width: 16px; 
+    height: 16px;
+}
+
 /* Coin animation container */
 #coin-animation-container {
     position: fixed;
