@@ -448,11 +448,13 @@ function openBetModal() {
 }
 
 // Submits bet and starts the game
-function submitBet() {
-    var betValue = parseInt($("#betAmountInput").val());
-    if (isNaN(betValue) || betValue <= 0) {
-        alert("Please enter a valid bet amount!");
-        return;
+function submitBet(betValue=null) {
+    if (betValue === null) {
+        var betValue = parseInt($("#betAmountInput").val());
+        if (isNaN(betValue) || betValue <= 0) {
+            showFlashMessage("Please enter a valid bet amount!", 'error');
+            return;
+        }
     }
 
     // Post the bet to the server 
@@ -473,6 +475,17 @@ function submitBet() {
             showFlashMessage(data.message, 'error')
         }
     });
+}
+
+function allIn() {
+    const balanceElement  = document.getElementById("balance");
+    let currentBalance = parseInt(balanceElement.innerText);
+    if (currentBalance <= 0){
+        showFlashMessage("You don't have enough money to bet!", 'error');
+        return;
+    } else {
+        submitBet(currentBalance);
+    }
 }
 
 

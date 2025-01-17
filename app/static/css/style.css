@@ -307,6 +307,24 @@ color: #155724;
   justify-content: space-between; 
 }
 
+/* Welcome container */
+.welcome-container {
+  position: absolute; 
+  right: 80px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px; 
+  color: #ffffff;
+}
+
+/* Welcome message text */
+.welcome-message {
+  font-size: 1rem;
+  color: #ffffff;
+}
+
 /* Navbar */
 .navbar ul {
   list-style: none; 
@@ -349,6 +367,75 @@ body {
   border-radius: 5px;
   cursor: pointer;
 }
+
+/* Dropdown container */
+.navbar .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown button */
+.navbar .dropbtn {
+  color: #ffffff;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 5px;
+}
+
+.navbar .dropbtn:hover {
+  background-color: #555555;
+  color: #ffcc00;
+}
+
+/* Dropdown content */
+.navbar .dropdown-content {
+  display: none; 
+  position: absolute;
+  top: calc(100%); 
+  left: 0;
+  background-color: #333333;
+  min-width: 180px; 
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border-radius: 5px;
+  overflow: hidden;
+  padding: 5px 0; 
+}
+
+.navbar .dropdown-content li {
+  display: block;
+  text-align: left;
+  padding: 0; 
+}
+
+.navbar .dropdown-content li a {
+  color: #ffffff;
+  padding: 15px 20px; 
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navbar .dropdown-content li a:hover {
+  background-color: #555555;
+  color: #ffcc00;
+}
+
+.navbar .dropdown:hover .dropdown-content,
+.navbar .dropdown-content:hover {
+  display: block;
+}
+
+.navbar .spacer {
+  flex-grow: 10; 
+}
+
 
 .game-buttons-container {
   display: flex;

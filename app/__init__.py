@@ -55,7 +55,7 @@ def login():
 def logout():
     if "username" in session:
         user = session.pop("username")
-        flash(f"{user}, you have been logged out.", "info")
+        flash(f"{user}, you have been logged out.", "success")
     return redirect(url_for("home"))
 
 @app.route("/register", methods=["GET", "POST"])

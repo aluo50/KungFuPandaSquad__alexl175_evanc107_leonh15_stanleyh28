@@ -37,10 +37,6 @@ Time spent: x -->
         {% endwith %}
       {% if session['username'] %}
         <div class="player-info">
-            <div class="welcome-message">
-                Welcome, <span id="username">{{ username }}</span>!
-                <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
-            </div>
             <div class="balance-info">
                 Balance: <span id="balance">{{ balance }}</span><img src="{{ url_for('static', filename='images/coin.png') }}" alt="Coin Icon" class="coin-icon">
             </div>
@@ -51,14 +47,26 @@ Time spent: x -->
       {% endif %}
     </header>
   
-  <nav class="navbar">
+    <nav class="navbar">
       <ul>
-          <li><a href="{{ url_for('home') }}">Home</a></li>
-          <li><a href="{{ url_for('plinko') }}">Plinko</a></li>
-          <li><a href="{{ url_for('mines') }}">Mines</a></li>
-          <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li class="dropdown">
+          <a href="javascript:void(0)" class="dropbtn">Games ▼</a>
+          <ul class="dropdown-content">
+            <li><a href="{{ url_for('play_blackjack') }}">Blackjack</a></li>
+            <li><a href="{{ url_for('plinko') }}">Plinko</a></li>
+            <li><a href="{{ url_for('mines') }}">Mines</a></li>
+          </ul>
+        </li>
+        <li><a href="{{ url_for('show_leaderboard') }}">Leaderboard</a></li>
+        {% if username %}
+          <div class="welcome-container">
+            <span class="welcome-message">Welcome, {{ username }}!</span>
+            <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
+          </div>
+        {% endif %}
       </ul>
-  </nav>
+    </nav>
 
   <!-- Bet Submission Modal -->
   <div id="betModal" class="modal">
@@ -66,6 +74,7 @@ Time spent: x -->
           <h2>Place Your Bet</h2>
           <input type="number" id="betAmountInput" min="1" max="{{ balance }}" placeholder="ex: 1000" />
           <button onclick="submitBet()">Submit Bet</button>
+          <button onclick="allIn()">All In</button>
       </div>
   </div>
     
