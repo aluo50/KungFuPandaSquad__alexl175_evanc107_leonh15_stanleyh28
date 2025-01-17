@@ -103,3 +103,9 @@ stanleyH - 2025-1-16 2:24
 alexL - 2025-1-16 10:50
  - updated navbar to all templates
  - fixed styling
+
+stanleyH - 2025-1-16 19:43
+ - updated nav bars
+ - added styling
+ - added all in button
+ - highlights position on leaderboard
