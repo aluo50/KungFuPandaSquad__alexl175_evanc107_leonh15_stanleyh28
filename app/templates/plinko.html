@@ -64,11 +64,8 @@ Time spent: x
 
       function logisticMap(r,x){
         return r*x*(1-x);
-      }
+      } //gets next value in chaotic sequence
 
-      // we might remove the logistic chaos and implement a more fine normal distribution
-
-      // takes ball's horizontal speed and normalizes it, then applies logistic formula to get a new 0-1 value
       function applyLogisticChaos(ball){
         let maxSpeed = 10;
         let normalized = (ball.speed[0]+maxSpeed) / (2*maxSpeed);
@@ -77,7 +74,7 @@ Time spent: x
 
         let newNormalized = logisticMap(logisticR, normalized);
         ball.speed[0] = newNormalized * 2 * maxSpeed - maxSpeed;
-      }
+      }  // takes ball's horizontal speed and normalizes it, then applies logistic formula to get a new 0-1 value
 
       function rotateVector(vec, theta) {
         const cosT = Math.cos(theta);
@@ -87,12 +84,12 @@ Time spent: x
         const y = vec[0] * sinT + vec[1] * cosT;
 
         return [x, y];
-    }
+      } // rotates a given vector by angle
 
-    function randomAngle(maxDeg) {
-      const maxRad = (maxDeg * Math.PI) / 180;
-      return (Math.random() * 2 - 1) * maxRad;
-    }
+      function randomAngle(maxDeg) {
+        const maxRad = (maxDeg * Math.PI) / 180;
+        return (Math.random() * 2 - 1) * maxRad;
+      } // generates a random angle
 
       //financials
       var creditcardinfo;
@@ -181,7 +178,7 @@ Time spent: x
         clear : function() {
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         }
-      };
+      }; //initalizes game grid and variables
 
       function onCanvasClick(event) {
         let posMouse = getMousePos(board.canvas, event);
@@ -222,7 +219,7 @@ Time spent: x
         else if (inRect(homeBtnRect)){
           window.location.href="/";
         }
-      }
+      } // handles user interactions with canvas
 
 
       function updateGameArea(){
@@ -278,7 +275,7 @@ Time spent: x
         //other stuff
         displayMults();
         displayUI();
-      }
+      } // renders visual components of the game
 
       function displayMults(){
         let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
@@ -372,6 +369,7 @@ Time spent: x
         ctx.font = `400 ${24*prop}px 'Calibri', sans-serif`;
         ctx.fillText("Drop Ball", (1/20)*cWidth+(.5*(side2side[1]-((2/20)*cWidth))), ((7/12)*cHeight)+0.5*(cHeight/12));
 
+        // home button 
         ctx.fillStyle = "#007bff";
         ctx.beginPath();
         ctx.roundRect((1 / 80) * cWidth,(5 / 12) * cHeight - cHeight / 12 - 20,side2side[1] - (2 / 80) * cWidth,cHeight / 14,1 / 40 * cHeight);
@@ -382,6 +380,7 @@ Time spent: x
         ctx.font = `400 ${22 * prop}px 'Calibri', sans-serif`;
         ctx.fillText("Home",(1 / 20) * cWidth + 0.5 * (side2side[1] - (2 / 20) * cWidth),(5 / 12) * cHeight - cHeight / 24 - 20);
 
+        // button for rows
         let rowsBtnX = (1/80)*cWidth;
         let rowsBtnY = (4.5/12)*cHeight;
         let rowsBtnW = side2side[1] - (2/80)*cWidth;
@@ -396,6 +395,7 @@ Time spent: x
         ctx.font = `400 ${22*prop}px 'Calibri', sans-serif`;
         ctx.fillText(`Rows: ${rows}`, rowsBtnX + rowsBtnW/2, rowsBtnY + rowsBtnH/2);
 
+        // button for risks
         let riskBtnX = (1/80)*cWidth;
         let riskBtnY = (6/12)*cHeight - 20;
         let riskBtnW = side2side[1] - (2/80)*cWidth;
@@ -412,8 +412,7 @@ Time spent: x
 
         ctx.fillStyle = "#6c757d";
 
-
-      }//displayUI
+      }//displayUI by rendering buttons for rows, risk levels, etc
 
       function createGrid(){
         let side2side = [(7/16)*cWidth,(7/8)*cWidth];//left and right bounds
@@ -436,7 +435,7 @@ Time spent: x
           }
           grid[i] = rw;
         }
-      }//createGrid
+      }//createGrid of pegs
 
       class Peg {
         pos = [];
@@ -446,7 +445,7 @@ Time spent: x
           this.pos[1] = y;
           this.size = sz;
           this.bounce = bouncyness;
-        }//constructor
+        }//initializes a peg
 
         display() {
           const ctx = board.context;
@@ -456,7 +455,7 @@ Time spent: x
           ctx.fill();
           ctx.strokeStyle = "#ffffff";
           ctx.stroke();
-        }//display
+        }//draws the peg 
 
         bounceEm() {
           for(let i = 0; i < balls.length; i++){
@@ -489,7 +488,7 @@ Time spent: x
               balls[i].apply(bForce);
             }
           }
-        }
+        } // handles collisions between peg and all balls
 
       }//Peg class
 
@@ -547,7 +546,7 @@ Time spent: x
             balls.splice(index, 1);
               }
           }
-        }//run
+        }// updates ball's position based on speed and acceleration, processes result w/ server, and removes ball
 
         display(){
           const ctx = board.context;
