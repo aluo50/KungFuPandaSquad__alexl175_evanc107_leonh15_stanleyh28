@@ -99,3 +99,7 @@ stanleyH - 2025-1-16 2:24
  - Added styling and nav bars
  - Added screen to enter bet amount for blackjack
  - Added transaction colors, flashing messages
+
+alexL - 2025-1-16 10:50
+ - updated navbar to all templates
+ - fixed styling
